@@ -1,0 +1,18 @@
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: test
+      TZ: Asia/Seoul
+    ports:
+      - 3310:3306
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    command:
+      - --character-set-server=utf8
+      - --collation-server=utf8_general_ci
