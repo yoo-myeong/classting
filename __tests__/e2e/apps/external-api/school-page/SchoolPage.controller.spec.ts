@@ -11,6 +11,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { SchoolPageModule } from '../../../../../apps/external-api/src/school-page/SchoolPage.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseMappingInterceptor } from '@app/common-config/interceptor/response-mapping.interceptor';
 
 describe('/schools/pages', () => {
   let app: INestApplication;
@@ -27,7 +29,13 @@ describe('/schools/pages', () => {
         getTestMySQLTypeOrmModule(),
         SchoolPageModule,
       ],
-      providers: [Logger],
+      providers: [
+        Logger,
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: ResponseMappingInterceptor,
+        },
+      ],
     }).compile();
 
     schoolPageEntityRepository = module.get(

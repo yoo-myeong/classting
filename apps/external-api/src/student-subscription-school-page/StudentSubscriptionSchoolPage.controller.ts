@@ -1,10 +1,21 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiStudentAuthHeader } from '@app/common-config/decorator/ApiStudentAuthHeader.decorator';
 import { StudentUserGuard } from '@app/common-config/guard/StudentUser.guard';
+import { ResponseData } from '@app/common-config/decorator/ResponseData.decorator';
 import { StudentSubscriptionSchoolPageService } from './StudentSubscriptionSchoolPage.service';
 import { SubscribeReqBody } from './dto/SubscribeReqBody';
+import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
 
 @ApiTags('학생 학교페이지 구독')
 @Controller('students/subscriptions')
@@ -30,12 +41,27 @@ export class StudentSubscriptionSchoolPageController {
     summary: '학생의 구독중인 학교페이지 목록 조회',
   })
   @ApiStudentAuthHeader()
+  @ResponseData(GetSubscribingSchoolPagesResult)
   @UseGuards(StudentUserGuard)
   @Get('pages')
-  async getAllPg(@Req() req: Request) {
+  async getAllSubscribingPage(@Req() req: Request) {
     const userId = req['user'].id;
     return this.studentSubscriptionSchoolPageService.getSubscribingSchoolPages(
       userId,
+    );
+  }
+
+  @ApiOperation({
+    summary: '학생의 학교페이지 구독 취소',
+  })
+  @ApiStudentAuthHeader()
+  @UseGuards(StudentUserGuard)
+  @Delete('pages/:pageId')
+  async unsubscribe(@Req() req: Request, @Param('pageId') pageId: number) {
+    const userId = req['user'].id;
+    return this.studentSubscriptionSchoolPageService.unsubscribe(
+      userId,
+      pageId,
     );
   }
 }

@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
 import { GetSchoolPagesByStudentIdResult } from '@app/entity/student-subscription-school-page/dto/GetSchoolPagesByStudentIdResult';
+import { CustomError } from '@app/common-config/error/CustomError';
+import { ResponseStatus } from '@app/common-config/res/ResponseStastus';
 
 @Injectable()
 export class StudentSubscriptionSchoolPageRepository {
@@ -28,5 +30,27 @@ export class StudentSubscriptionSchoolPageRepository {
           schoolName: it.schoolPage.name,
         }),
     );
+  }
+
+  async getSubscriptionByStudentIdAndSchoolId(
+    studentId: number,
+    schoolPageId: number,
+  ) {
+    const subscription =
+      await this.studentSubscriptionSchoolPageEntityRepository.findOneBy({
+        studentId,
+        schoolPage: {
+          id: schoolPageId,
+        },
+        deletedAt: null,
+      });
+
+    if (!subscription)
+      throw new CustomError(
+        ResponseStatus.NOT_FOUND,
+        '구독중인 페이지가 아닙니다.',
+      );
+
+    return subscription;
   }
 }

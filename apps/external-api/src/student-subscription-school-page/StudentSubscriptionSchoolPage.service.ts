@@ -5,6 +5,7 @@ import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscri
 import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.repository';
 import { SubscribeSchoolPageDto } from './dto/SubscribeSchoolPageDto';
+import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
 
 @Injectable()
 export class StudentSubscriptionSchoolPageService {
@@ -26,9 +27,30 @@ export class StudentSubscriptionSchoolPageService {
     );
   }
 
-  async getSubscribingSchoolPages(stId: number) {
-    return this.studentSubscriptionSchoolPageRepository.getSubscribingSchoolPagesByStudentId(
-      stId,
+  async getSubscribingSchoolPages(studentId: number) {
+    const schoolPages =
+      await this.studentSubscriptionSchoolPageRepository.getSubscribingSchoolPagesByStudentId(
+        studentId,
+      );
+    return schoolPages.map(
+      (it) =>
+        new GetSubscribingSchoolPagesResult({
+          id: it.id,
+          region: it.region,
+          schoolName: it.schoolName,
+        }),
+    );
+  }
+
+  async unsubscribe(studentId: number, schoolPageId: number) {
+    const subscription =
+      await this.studentSubscriptionSchoolPageRepository.getSubscriptionByStudentIdAndSchoolId(
+        studentId,
+        schoolPageId,
+      );
+
+    await this.studentSubscriptionSchoolPageEntityRepository.softDelete(
+      subscription.id,
     );
   }
 }
