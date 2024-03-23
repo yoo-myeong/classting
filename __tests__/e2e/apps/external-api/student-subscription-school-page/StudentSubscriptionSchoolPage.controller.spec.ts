@@ -16,6 +16,8 @@ import { SchoolPageModule } from '../../../../../apps/external-api/src/school-pa
 import { SchoolNewsModule } from '../../../../../apps/external-api/src/school-news/SchoolNews.module';
 import { StudentSubscriptionSchoolPageModule } from '../../../../../apps/external-api/src/student-subscription-school-page/StudentSubscriptionSchoolPage.module';
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseMappingInterceptor } from '@app/common-config/interceptor/response-mapping.interceptor';
 
 describe('/st/sub', () => {
   let app: INestApplication;
@@ -34,7 +36,13 @@ describe('/st/sub', () => {
         SchoolPageModule,
         StudentSubscriptionSchoolPageModule,
       ],
-      providers: [Logger],
+      providers: [
+        Logger,
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: ResponseMappingInterceptor,
+        },
+      ],
     }).compile();
 
     schoolPageEntityRepository = module.get(
@@ -100,7 +108,7 @@ describe('/st/sub', () => {
     const res = await request(app.getHttpServer())
       .get(`/students/subscriptions/pages`)
       .set('Authorization', 'test-token');
-    const data = res.body;
+    const data = res.body.data;
 
     expect(res.status).toBe(HttpStatus.OK);
     expect(data[0].region).toBe(region);

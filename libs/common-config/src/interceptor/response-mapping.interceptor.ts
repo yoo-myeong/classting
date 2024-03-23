@@ -13,7 +13,12 @@ export class ResponseMappingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(
       map((data) => {
-        return instanceToPlain(ResponseEntity.successWith(data));
+        let plainData;
+        if (Array.isArray(data))
+          plainData = data.map((it) => instanceToPlain(it));
+        plainData = instanceToPlain(data);
+
+        return instanceToPlain(ResponseEntity.successWith(plainData));
       }),
     );
   }

@@ -15,6 +15,8 @@ import { SchoolPageModule } from '../../../../../apps/external-api/src/school-pa
 import { SchoolNewsModule } from '../../../../../apps/external-api/src/school-news/SchoolNews.module';
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseMappingInterceptor } from '@app/common-config/interceptor/response-mapping.interceptor';
 
 describe('/schools/pages/:pageId/news', () => {
   let app: INestApplication;
@@ -33,7 +35,13 @@ describe('/schools/pages/:pageId/news', () => {
         SchoolPageModule,
         SchoolNewsModule,
       ],
-      providers: [Logger],
+      providers: [
+        Logger,
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: ResponseMappingInterceptor,
+        },
+      ],
     }).compile();
 
     schoolPageEntityRepository = module.get(

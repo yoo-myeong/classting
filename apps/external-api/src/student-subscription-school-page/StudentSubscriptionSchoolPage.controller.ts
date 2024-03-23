@@ -3,8 +3,10 @@ import { Request } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiStudentAuthHeader } from '@app/common-config/decorator/ApiStudentAuthHeader.decorator';
 import { StudentUserGuard } from '@app/common-config/guard/StudentUser.guard';
+import { ResponseData } from '@app/common-config/decorator/ResponseData.decorator';
 import { StudentSubscriptionSchoolPageService } from './StudentSubscriptionSchoolPage.service';
 import { SubscribeReqBody } from './dto/SubscribeReqBody';
+import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
 
 @ApiTags('학생 학교페이지 구독')
 @Controller('students/subscriptions')
@@ -30,6 +32,7 @@ export class StudentSubscriptionSchoolPageController {
     summary: '학생의 구독중인 학교페이지 목록 조회',
   })
   @ApiStudentAuthHeader()
+  @ResponseData(GetSubscribingSchoolPagesResult)
   @UseGuards(StudentUserGuard)
   @Get('pages')
   async getAllPg(@Req() req: Request) {

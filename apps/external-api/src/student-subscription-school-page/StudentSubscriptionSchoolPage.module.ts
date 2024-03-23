@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SchoolPageEntityModule } from '@app/entity/school-page/SchoolPageEntity.module';
 import { StudentSubscriptionEntityModule } from '@app/entity/student-subscription-school-page/StudentSubscriptionEntity.module';
 import { StudentSubscriptionSchoolPageService } from './StudentSubscriptionSchoolPage.service';
-import { StudentSubscriptionSchoolPageController } from './StudentSubscriptionSchoolPageController';
+import { StudentSubscriptionSchoolPageController } from './StudentSubscriptionSchoolPage.controller';
 
 @Module({
   imports: [StudentSubscriptionEntityModule, SchoolPageEntityModule],

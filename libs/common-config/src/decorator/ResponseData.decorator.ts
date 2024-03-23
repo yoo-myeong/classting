@@ -2,8 +2,8 @@ import type { Type } from '@nestjs/common';
 import { applyDecorators } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 
-export const ResponseData = <TModel extends Type<unknown>>(model?: TModel) =>
-  applyDecorators(
+export const ResponseData = <TModel extends Type<unknown>>(model?: TModel) => {
+  return applyDecorators(
     ApiExtraModels(model),
     ApiOkResponse({
       schema: {
@@ -28,3 +28,4 @@ export const ResponseData = <TModel extends Type<unknown>>(model?: TModel) =>
       },
     }),
   );
+};
