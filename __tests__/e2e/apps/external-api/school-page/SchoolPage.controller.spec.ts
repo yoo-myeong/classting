@@ -77,7 +77,7 @@ describe('/schools/pages', () => {
       name: '현대',
     };
     const headers = {
-      Authorization: 'test-token',
+      'X-Authorization': 'test-token',
     };
 
     const res = await request(app.getHttpServer())

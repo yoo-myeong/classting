@@ -11,8 +11,12 @@ export class SchoolPageService {
     private readonly schoolPageEntityRepository: Repository<SchoolPageEntity>,
   ) {}
 
-  async createSchoolPage(createSchoolPage: SchoolPageDomain) {
+  async createSchoolPage(createSchoolPage: SchoolPageDomain): Promise<number> {
     await createSchoolPage.validate();
-    await this.schoolPageEntityRepository.insert(createSchoolPage.toEntity());
+    const result = await this.schoolPageEntityRepository.insert(
+      createSchoolPage.toEntity(),
+    );
+
+    return result.raw.insertId;
   }
 }
