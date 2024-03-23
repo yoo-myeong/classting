@@ -8,7 +8,7 @@ import {
 import { DomainValidator } from '@app/domain/util/DomainValidator';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 
-export class CreateSchoolPage {
+export class SchoolPageDomain {
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
@@ -28,7 +28,7 @@ export class CreateSchoolPage {
   }
 
   static create(ctx: { region: string; name: string; schoolId: number }) {
-    const inst = new CreateSchoolPage();
+    const inst = new SchoolPageDomain();
     inst._region = ctx.region;
     inst._name = ctx.name;
     inst._schoolId = ctx.schoolId;

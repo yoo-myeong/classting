@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateSchoolPage } from '@app/domain/school-page/CreateSchoolPage.domain';
+import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 
 export class CreateSchoolPageReqBody {
   @ApiProperty()
@@ -15,7 +15,7 @@ export class CreateSchoolPageReqBody {
   name: string;
 
   toDomain(schoolId: number) {
-    return CreateSchoolPage.create({
+    return SchoolPageDomain.create({
       region: this.region,
       name: this.name,
       schoolId,

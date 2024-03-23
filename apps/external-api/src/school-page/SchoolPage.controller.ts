@@ -6,13 +6,13 @@ import { SchoolUserGuard } from '@app/common-config/guard/SchoolUser.guard';
 import { SchoolPageService } from './SchoolPage.service';
 import { CreateSchoolPageReqBody } from './dto/CreateSchoolPageReqBody';
 
-@ApiTags('school page')
-@Controller('school/page')
+@ApiTags('학교 페이지')
+@Controller('schools/pages')
 export class SchoolPageController {
   constructor(private readonly schoolPageService: SchoolPageService) {}
 
   @ApiOperation({
-    summary: 'sc 페이지 등록',
+    summary: '학교 페이지 등록',
   })
   @ApiSchoolAuthHeader()
   @UseGuards(SchoolUserGuard)

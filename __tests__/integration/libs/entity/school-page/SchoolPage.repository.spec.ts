@@ -1,13 +1,14 @@
 import { DataSource, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
+import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 import { SchoolPageEntityModule } from '@app/entity/school-page/SchoolPageEntity.module';
-import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
-import { SchoolPageService } from '../../../../../apps/external-api/src/school-page/SchoolPage.service';
+import { CustomError } from '@app/common-config/error/CustomError';
+import { ResponseStatus } from '@app/common-config/res/ResponseStastus';
+import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 
-describe('School Page Service', () => {
+describe('School Page Repository', () => {
   let dataSource: DataSource;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
 
@@ -30,23 +31,11 @@ describe('School Page Service', () => {
     await dataSource.destroy();
   });
 
-  it('school page 생성', async () => {
-    const region = '서울';
-    const name = '현대';
-    const domain = SchoolPageDomain.create({
-      region,
-      name,
-      schoolId: 1,
-    });
-    const sut = new SchoolPageService(schoolPageEntityRepository);
+  it('함수 호출 시,존재하지 않으면 에러', async () => {
+    const sut = new SchoolPageRepository(schoolPageEntityRepository);
 
-    await sut.createScPage(domain);
-    const schoolPage = await schoolPageEntityRepository.findOneBy({
-      region,
-      name,
-    });
-
-    expect(schoolPage.region).toBe(region);
-    expect(schoolPage.name).toBe(name);
+    await expect(sut.getById(1)).rejects.toThrow(
+      new CustomError(ResponseStatus.NOT_FOUND, '존재하지 않는 페이지입니다'),
+    );
   });
 });

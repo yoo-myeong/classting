@@ -10,6 +10,8 @@ import { NotFoundExceptionsFilter } from '@app/common-config/filter/api/not-foun
 import { ForbiddenExceptionFilter } from '@app/common-config/filter/api/forbidden-exception.filter';
 import { UnauthorizedExceptionFilter } from '@app/common-config/filter/api/unauthorized-exception.filter';
 import { getMySQLTypeOrmModule } from '@app/entity/getMySQLTypeOrmModule';
+import { SchoolPageModule } from './school-page/SchoolPage.module';
+import { SchoolNewsModule } from './school-news/SchoolNews.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { getMySQLTypeOrmModule } from '@app/entity/getMySQLTypeOrmModule';
       isGlobal: true,
     }),
     getMySQLTypeOrmModule(),
+    SchoolPageModule,
+    SchoolNewsModule,
   ],
   providers: [
     Logger,

@@ -9,12 +9,16 @@ import request from 'supertest';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { SchoolPageModule } from '../../../../../apps/external-api/src/school-page/SchoolPage.module';
+import { SchoolNewsModule } from '../../../../../apps/external-api/src/school-news/SchoolNews.module';
+import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 
-describe('/schools/pages', () => {
+describe('/schools/pages/:pageId/news', () => {
   let app: INestApplication;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
+  let schoolNewsEntityRepository: Repository<SchoolNewsEntity>;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -26,12 +30,16 @@ describe('/schools/pages', () => {
         }),
         getTestMySQLTypeOrmModule(),
         SchoolPageModule,
+        SchoolNewsModule,
       ],
       providers: [Logger],
     }).compile();
 
     schoolPageEntityRepository = module.get(
       getRepositoryToken(SchoolPageEntity),
+    );
+    schoolNewsEntityRepository = module.get(
+      getRepositoryToken(SchoolNewsEntity),
     );
 
     app = App.create({
@@ -44,38 +52,38 @@ describe('/schools/pages', () => {
 
   beforeEach(async () => {
     await schoolPageEntityRepository.delete({});
+    await schoolNewsEntityRepository.delete({});
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('[POST]/schools/pages, 인증되지 않은 학교 유저는 학교페이지를 생성할 수 없음', async () => {
-    const body = {
-      region: '서울',
-      name: '현대',
+  const createScPage = async (
+    region: string = '서울',
+    name: string = '청운',
+    schoolId: number = 1,
+  ) => {
+    return await schoolPageEntityRepository.save(
+      SchoolPageDomain.create({
+        region,
+        name,
+        schoolId,
+      }).toEntity(),
+    );
+  };
+
+  it('[POST]schools/pages/:pageId/news', async () => {
+    const schoolPage = await createScPage();
+    const reqBody = {
+      title: 'title',
+      content: 'content'.repeat(10),
     };
 
     const res = await request(app.getHttpServer())
-      .post('/schools/pages')
-      .send(body);
-
-    expect(res.status).toBe(HttpStatus.FORBIDDEN);
-  });
-
-  it('[POST] /schools/pages', async () => {
-    const body = {
-      region: '서울',
-      name: '현대',
-    };
-    const headers = {
-      Authorization: 'test-token',
-    };
-
-    const res = await request(app.getHttpServer())
-      .post('/schools/pages')
-      .send(body)
-      .set(headers);
+      .post(`/schools/pages/${schoolPage.id}/news`)
+      .set('Authorization', 'test-token')
+      .send(reqBody);
 
     expect(res.status).toBe(HttpStatus.CREATED);
   });
