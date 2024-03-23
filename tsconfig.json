@@ -31,6 +31,12 @@
       ],
       "@app/entity/*": [
         "libs/entity/src/*"
+      ],
+      "@app/domain": [
+        "libs/domain/src"
+      ],
+      "@app/domain/*": [
+        "libs/domain/src/*"
       ]
     }
   }
