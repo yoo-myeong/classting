@@ -1,4 +1,4 @@
-export class UpdateNewDto {
+export class UpdateSchoolNewsDto {
   private readonly _id: number;
 
   private readonly _title?: string;

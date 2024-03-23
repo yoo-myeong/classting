@@ -28,7 +28,7 @@ export class SchoolNewsController {
     @Param('pageId', ParseIntPipe) pageId: number,
     @Body() body: PublishSchoolNewsReqBody,
   ) {
-    await this.schoolNewsService.createScNew(body.toDomain(pageId));
+    await this.schoolNewsService.createSchoolNews(body.toDomain(pageId));
   }
 
   @ApiOperation({
