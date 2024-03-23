@@ -114,7 +114,7 @@ describe('/schools/pages/:pageId/news', () => {
     expect(res.status).toBe(HttpStatus.OK);
   });
 
-  it('[PATCH]/sc/page/:pageId/new/:newId', async () => {
+  it('[PATCH]/schools/pages/:pageId/news/:newsId', async () => {
     const schoolPage = await createSchoolPage();
     const schoolNews = await createSchoolNews(schoolPage);
     const reqBody = {
