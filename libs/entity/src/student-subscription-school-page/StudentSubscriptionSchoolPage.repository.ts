@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
 import { GetSchoolPagesByStudentIdResult } from '@app/entity/student-subscription-school-page/dto/GetSchoolPagesByStudentIdResult';
 import { CustomError } from '@app/common-config/error/CustomError';
 import { ResponseStatus } from '@app/common-config/res/ResponseStastus';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 
 @Injectable()
 export class StudentSubscriptionSchoolPageRepository {
@@ -52,5 +53,26 @@ export class StudentSubscriptionSchoolPageRepository {
       );
 
     return subscription;
+  }
+
+  async getNewsFeeds(studentId: number) {
+    return this.studentSubscriptionSchoolPageEntityRepository
+      .createQueryBuilder('ssp')
+      .select('sn.title', 'title')
+      .addSelect('sn.content', 'content')
+      .withDeleted()
+      .innerJoin('ssp.schoolPage', 'sp')
+      .innerJoin(SchoolNewsEntity, 'sn', 'sn.school_page_id = sp.id')
+      .where('ssp.studentId=:studentId', { studentId })
+      .andWhere('sn.createdAt >= ssp.createdAt')
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('ssp.deletedAt >= sn.createdAt').orWhere(
+            'ssp.deletedAt is null',
+          );
+        }),
+      )
+      .orderBy('sn.createdAt', 'DESC')
+      .getRawMany<SchoolNewsEntity>();
   }
 }

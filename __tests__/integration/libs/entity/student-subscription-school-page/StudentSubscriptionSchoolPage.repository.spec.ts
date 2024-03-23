@@ -11,11 +11,15 @@ import { SubscribeSchoolPageDto } from '../../../../../apps/external-api/src/stu
 import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.repository';
 import { CustomError } from '@app/common-config/error/CustomError';
 import { ResponseStatus } from '@app/common-config/res/ResponseStastus';
+import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
+import { SchoolNewsEntityModule } from '@app/entity/school-news/SchoolNewsEntity.module';
 
 describe('StudentSubscriptionSchoolPage Repository', () => {
   let dataSource: DataSource;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
   let studentSubscriptionSchoolPageEntityRepository: Repository<StudentSubscriptionSchoolPageEntity>;
+  let schoolNewsEntityRepository: Repository<SchoolNewsEntity>;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,6 +27,7 @@ describe('StudentSubscriptionSchoolPage Repository', () => {
         getTestMySQLTypeOrmModule(),
         StudentSubscriptionEntityModule,
         SchoolPageEntityModule,
+        SchoolNewsEntityModule,
       ],
     }).compile();
 
@@ -32,12 +37,16 @@ describe('StudentSubscriptionSchoolPage Repository', () => {
     studentSubscriptionSchoolPageEntityRepository = module.get(
       getRepositoryToken(StudentSubscriptionSchoolPageEntity),
     );
+    schoolNewsEntityRepository = module.get(
+      getRepositoryToken(SchoolNewsEntity),
+    );
     dataSource = module.get<DataSource>(DataSource);
   });
 
   beforeEach(async () => {
     await schoolPageEntityRepository.delete({});
     await studentSubscriptionSchoolPageEntityRepository.delete({});
+    await schoolNewsEntityRepository.delete({});
   });
 
   afterAll(async () => {
@@ -58,12 +67,27 @@ describe('StudentSubscriptionSchoolPage Repository', () => {
     );
   };
 
-  const createSubscriptionSchoolPage = async (
-    studentId: number,
+  const createSubscription = async (
     schoolPage: SchoolPageEntity,
+    studentId: number = 1,
   ) => {
-    return await studentSubscriptionSchoolPageEntityRepository.save(
-      new SubscribeSchoolPageDto(studentId, schoolPage.id).toEntity(schoolPage),
+    const entity = new StudentSubscriptionSchoolPageEntity();
+    entity.schoolPage = schoolPage;
+    entity.studentId = studentId;
+    return await studentSubscriptionSchoolPageEntityRepository.save(entity);
+  };
+
+  const createSchoolNews = async (
+    schoolPage: SchoolPageEntity,
+    title: string = 'title',
+    content: string = 'content'.repeat(10),
+  ) => {
+    return await schoolNewsEntityRepository.save(
+      SchoolNewsDomain.create({
+        schoolPageId: schoolPage.id,
+        title,
+        content,
+      }).toEntity(schoolPage),
     );
   };
 
@@ -71,8 +95,8 @@ describe('StudentSubscriptionSchoolPage Repository', () => {
     const studentId = 1;
     const schoolPage1 = await createSchoolPage('경기', '문산', studentId);
     const schoolPage2 = await createSchoolPage('대전', '화암', studentId);
-    await createSubscriptionSchoolPage(studentId, schoolPage1);
-    await createSubscriptionSchoolPage(studentId, schoolPage2);
+    await createSubscription(schoolPage1, studentId);
+    await createSubscription(schoolPage2, studentId);
     const sut = new StudentSubscriptionSchoolPageRepository(
       studentSubscriptionSchoolPageEntityRepository,
     );
@@ -95,5 +119,69 @@ describe('StudentSubscriptionSchoolPage Repository', () => {
     ).rejects.toThrow(
       new CustomError(ResponseStatus.NOT_FOUND, '구독중인 페이지가 아닙니다.'),
     );
+  });
+
+  it('뉴스피드 조회 시, 구독을 한 이후의 소식만 포함', async () => {
+    const schoolPage = await createSchoolPage();
+    const schoolNews1 = await createSchoolNews(
+      schoolPage,
+      'title1',
+      'content1',
+    );
+    const subscription = await createSubscription(schoolPage);
+    const schoolNews2 = await createSchoolNews(
+      schoolPage,
+      'title2',
+      'content2',
+    );
+    const schoolNews3 = await createSchoolNews(
+      schoolPage,
+      'title3',
+      'content3',
+    );
+
+    const sut = new StudentSubscriptionSchoolPageRepository(
+      studentSubscriptionSchoolPageEntityRepository,
+    );
+    const newsfeeds = await sut.getNewsFeeds(subscription.studentId);
+
+    expect(newsfeeds.length).toBe(2);
+    expect(newsfeeds[0].title).toBe(schoolNews3.title);
+    expect(newsfeeds[0].content).toBe(schoolNews3.content);
+    expect(newsfeeds[1].title).toBe(schoolNews2.title);
+    expect(newsfeeds[1].content).toBe(schoolNews2.content);
+  });
+
+  it('뉴스피드 조회 시, 구독을 취소해도 기존 뉴스피드의 소식을 유지 ', async () => {
+    const schoolPage = await createSchoolPage();
+    const schoolNews1 = await createSchoolNews(
+      schoolPage,
+      'title1',
+      'content1',
+    );
+    const subscription = await createSubscription(schoolPage);
+    const schoolNews2 = await createSchoolNews(
+      schoolPage,
+      'title2',
+      'content2',
+    );
+    await new Promise((r) => setTimeout(r, 1000));
+    await studentSubscriptionSchoolPageEntityRepository.softDelete(
+      subscription.id,
+    );
+    const schoolNews3 = await createSchoolNews(
+      schoolPage,
+      'title3',
+      'content3',
+    );
+
+    const sut = new StudentSubscriptionSchoolPageRepository(
+      studentSubscriptionSchoolPageEntityRepository,
+    );
+    const newsfeeds = await sut.getNewsFeeds(subscription.studentId);
+
+    expect(newsfeeds.length).toBe(1);
+    expect(newsfeeds[0].title).toBe(schoolNews2.title);
+    expect(newsfeeds[0].content).toBe(schoolNews2.content);
   });
 });
