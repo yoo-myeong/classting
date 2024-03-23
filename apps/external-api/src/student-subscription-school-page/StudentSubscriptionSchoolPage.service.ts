@@ -59,7 +59,7 @@ export class StudentSubscriptionSchoolPageService {
     );
   }
 
-  async getSubscribingPageNewsByPageId(
+  async getSubscribingPageNewsByStudentIdAndPageId(
     studentId: number,
     schoolPageId: number,
   ) {

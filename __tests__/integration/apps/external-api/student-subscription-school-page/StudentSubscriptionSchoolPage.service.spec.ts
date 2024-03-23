@@ -176,7 +176,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
       schoolNewsEntityRepository,
     );
 
-    const newsList = await sut.getSubscribingPageNewsByPageId(
+    const newsList = await sut.getSubscribingPageNewsByStudentIdAndPageId(
       studentId,
       schoolPage.id,
     );
@@ -198,7 +198,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     );
 
     await expect(
-      sut.getSubscribingPageNewsByPageId(studentId, schoolPage.id),
+      sut.getSubscribingPageNewsByStudentIdAndPageId(studentId, schoolPage.id),
     ).rejects.toThrow(
       new CustomError(ResponseStatus.NOT_FOUND, '구독중인 페이지가 아닙니다.'),
     );
