@@ -39,7 +39,10 @@ export class SchoolNewsController {
   @ApiSchoolPageAuthHeader()
   @UseGuards(SchoolPageGuard)
   @Delete(':newsId')
-  async deleteById(@Param('newsId', ParseIntPipe) newsId: number) {
+  async deleteById(
+    @Param('pageId', ParseIntPipe) pageId: number,
+    @Param('newsId', ParseIntPipe) newsId: number,
+  ) {
     await this.schoolNewsService.deleteById(newsId);
   }
 
@@ -50,6 +53,7 @@ export class SchoolNewsController {
   @UseGuards(SchoolPageGuard)
   @Patch(':newsId')
   async update(
+    @Param('pageId', ParseIntPipe) pageId: number,
     @Param('newsId', ParseIntPipe) newsId: number,
     @Body() body: UpdateSchoolNewsReqBody,
   ) {

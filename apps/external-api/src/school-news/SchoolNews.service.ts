@@ -18,14 +18,16 @@ export class SchoolNewsService {
     private readonly schoolNewsRepository: SchoolNewsRepository,
   ) {}
 
-  async createSchoolNews(schoolNews: SchoolNewsDomain) {
+  async createSchoolNews(schoolNews: SchoolNewsDomain): Promise<number> {
     await schoolNews.validate();
     const schoolPage = await this.schoolPageRepository.getById(
       schoolNews.schoolPageId,
     );
-    await this.schoolNewsEntityRepository.insert(
+    const result = await this.schoolNewsEntityRepository.insert(
       schoolNews.toEntity(schoolPage),
     );
+
+    return result.raw.insertId;
   }
 
   async deleteById(id: number) {

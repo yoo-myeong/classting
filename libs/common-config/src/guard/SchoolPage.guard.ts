@@ -25,6 +25,7 @@ export class SchoolPageGuard implements CanActivate {
     const schoolPage = await this.schoolPageEntityRepository.findOneBy({
       id: schoolPageId,
     });
+    if (!schoolPage) return false;
 
     return schoolPage.schoolId === req.user.id;
   }
