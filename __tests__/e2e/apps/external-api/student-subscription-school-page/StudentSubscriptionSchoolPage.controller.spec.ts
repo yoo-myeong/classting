@@ -9,17 +9,16 @@ import request from 'supertest';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
-import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
 import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { SchoolPageModule } from '../../../../../apps/external-api/src/school-page/SchoolPage.module';
-import { SchoolNewsModule } from '../../../../../apps/external-api/src/school-news/SchoolNews.module';
 import { StudentSubscriptionSchoolPageModule } from '../../../../../apps/external-api/src/student-subscription-school-page/StudentSubscriptionSchoolPage.module';
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseMappingInterceptor } from '@app/common-config/interceptor/response-mapping.interceptor';
+import { SchoolNewsEntityModule } from '@app/entity/school-news/SchoolNewsEntity.module';
 
-describe('/st/sub', () => {
+describe('/students/subscriptions', () => {
   let app: INestApplication;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
   let studentSubscriptionSchoolPageEntityRepository: Repository<StudentSubscriptionSchoolPageEntity>;
@@ -35,6 +34,7 @@ describe('/st/sub', () => {
         getTestMySQLTypeOrmModule(),
         SchoolPageModule,
         StudentSubscriptionSchoolPageModule,
+        SchoolNewsEntityModule,
       ],
       providers: [
         Logger,
