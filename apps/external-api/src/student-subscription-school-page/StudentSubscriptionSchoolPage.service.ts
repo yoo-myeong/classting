@@ -23,13 +23,16 @@ export class StudentSubscriptionSchoolPageService {
     private readonly schoolNewsEntityRepository: Repository<SchoolNewsEntity>,
   ) {}
 
-  async subscribe(dto: SubscribeSchoolPageDto) {
+  async subscribe(dto: SubscribeSchoolPageDto): Promise<number> {
     const schoolPage = await this.schoolPageRepository.getById(
       dto.schoolPageId,
     );
-    await this.studentSubscriptionSchoolPageEntityRepository.insert(
-      dto.toEntity(schoolPage),
-    );
+    const result =
+      await this.studentSubscriptionSchoolPageEntityRepository.insert(
+        dto.toEntity(schoolPage),
+      );
+
+    return result.raw.insertId;
   }
 
   async getSubscribingSchoolPages(studentId: number) {

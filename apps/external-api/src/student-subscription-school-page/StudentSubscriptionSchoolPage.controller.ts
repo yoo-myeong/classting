@@ -17,6 +17,7 @@ import { StudentSubscriptionSchoolPageService } from './StudentSubscriptionSchoo
 import { SubscribeReqBody } from './dto/SubscribeReqBody';
 import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
 import { GetSubscribingPageNewsByPageIdResult } from './dto/GetSubscribingPageNewsByPageIdResult';
+import { SubscribeRes } from './dto/SubscribeRes';
 
 @ApiTags('학생 학교페이지 구독')
 @Controller('students/subscriptions')
@@ -29,13 +30,16 @@ export class StudentSubscriptionSchoolPageController {
     summary: '학생의 학교페이지 구독 등록',
   })
   @ApiStudentAuthHeader()
+  @ResponseData(SubscribeRes)
   @UseGuards(StudentUserGuard)
   @Post()
   async subscribe(@Req() req: Request, @Body() body: SubscribeReqBody) {
     const userId = req['user'].id;
-    await this.studentSubscriptionSchoolPageService.subscribe(
+    const id = await this.studentSubscriptionSchoolPageService.subscribe(
       body.toSubscribeSchoolPageDto(userId),
     );
+
+    return new SubscribeRes(id);
   }
 
   @ApiOperation({

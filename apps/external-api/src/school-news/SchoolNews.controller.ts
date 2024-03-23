@@ -11,9 +11,11 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiSchoolPageAuthHeader } from '@app/common-config/decorator/ApiSchoolPageAuthHeader.decorator';
 import { SchoolPageGuard } from '@app/common-config/guard/SchoolPage.guard';
+import { ResponseData } from '@app/common-config/decorator/ResponseData.decorator';
 import { SchoolNewsService } from './SchoolNews.service';
 import { PublishSchoolNewsReqBody } from './dto/PublishSchoolNewsReqBody';
 import { UpdateSchoolNewsReqBody } from './dto/UpdateSchoolNewsReqBody';
+import { PublishSchoolNewsRes } from './dto/PublishSchoolNewsRes';
 
 @ApiTags('학교 소식')
 @Controller('schools/pages/:pageId/news')
@@ -24,13 +26,17 @@ export class SchoolNewsController {
     summary: '학교 소식 작성',
   })
   @ApiSchoolPageAuthHeader()
+  @ResponseData(PublishSchoolNewsRes)
   @UseGuards(SchoolPageGuard)
   @Post()
   async publish(
     @Param('pageId', ParseIntPipe) pageId: number,
     @Body() body: PublishSchoolNewsReqBody,
   ) {
-    await this.schoolNewsService.createSchoolNews(body.toDomain(pageId));
+    const id = await this.schoolNewsService.createSchoolNews(
+      body.toDomain(pageId),
+    );
+    return new PublishSchoolNewsRes(id);
   }
 
   @ApiOperation({
