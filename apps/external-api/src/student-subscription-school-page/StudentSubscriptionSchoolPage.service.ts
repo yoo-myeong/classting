@@ -41,4 +41,16 @@ export class StudentSubscriptionSchoolPageService {
         }),
     );
   }
+
+  async unsubscribe(studentId: number, schoolPageId: number) {
+    const subscription =
+      await this.studentSubscriptionSchoolPageRepository.getSubscriptionByStudentIdAndSchoolId(
+        studentId,
+        schoolPageId,
+      );
+
+    await this.studentSubscriptionSchoolPageEntityRepository.softDelete(
+      subscription.id,
+    );
+  }
 }

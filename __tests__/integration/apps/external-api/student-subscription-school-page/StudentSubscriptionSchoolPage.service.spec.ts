@@ -1,4 +1,4 @@
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CustomError } from '@app/common-config/error/CustomError';
@@ -46,7 +46,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     await dataSource.destroy();
   });
 
-  const createShoolPage = async (
+  const createSchoolPage = async (
     region: string = '서울',
     name: string = '청운',
     schoolId: number = 1,
@@ -60,9 +60,19 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     );
   };
 
+  const createSubscription = async (
+    schoolPage: SchoolPageEntity,
+    studentId: number = 1,
+  ) => {
+    const entity = new StudentSubscriptionSchoolPageEntity();
+    entity.schoolPage = schoolPage;
+    entity.studentId = studentId;
+    return await studentSubscriptionSchoolPageEntityRepository.save(entity);
+  };
+
   it('존재하지 않는 페이지 구독 불가', async () => {
     const studentId = 1;
-    const scPgId = 1;
+    const schoolPageId = 1;
     const sut = new StudentSubscriptionSchoolPageService(
       studentSubscriptionSchoolPageEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
@@ -79,7 +89,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
 
   it('학생은 학교 페이지를 구독할 수 있다', async () => {
     const studentId = 1;
-    const schoolPage = await createShoolPage();
+    const schoolPage = await createSchoolPage();
     const sut = new StudentSubscriptionSchoolPageService(
       studentSubscriptionSchoolPageEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
@@ -98,5 +108,29 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     });
 
     expect(subs).not.toBeNull();
+  });
+
+  it('학생의 학교페이지 구독 취소 ', async () => {
+    const studentId = 1;
+    const schoolPage = await createSchoolPage();
+    const subscription = await createSubscription(schoolPage, studentId);
+    const sut = new StudentSubscriptionSchoolPageService(
+      studentSubscriptionSchoolPageEntityRepository,
+      new SchoolPageRepository(schoolPageEntityRepository),
+      new StudentSubscriptionSchoolPageRepository(
+        studentSubscriptionSchoolPageEntityRepository,
+      ),
+    );
+
+    await sut.unsubscribe(studentId, schoolPage.id);
+    const schoolPageBy =
+      await studentSubscriptionSchoolPageEntityRepository.findOneBy({
+        studentId,
+        schoolPage: {
+          id: schoolPage.id,
+        },
+      });
+
+    expect(schoolPageBy).toBeNull();
   });
 });
