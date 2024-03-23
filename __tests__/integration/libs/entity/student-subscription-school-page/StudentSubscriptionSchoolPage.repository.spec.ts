@@ -9,6 +9,8 @@ import { SchoolPageEntityModule } from '@app/entity/school-page/SchoolPageEntity
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 import { SubscribeSchoolPageDto } from '../../../../../apps/external-api/src/student-subscription-school-page/dto/SubscribeSchoolPageDto';
 import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.repository';
+import { CustomError } from '@app/common-config/error/CustomError';
+import { ResponseStatus } from '@app/common-config/res/ResponseStastus';
 
 describe('StudentSubscriptionSchoolPage Repository', () => {
   let dataSource: DataSource;
@@ -81,5 +83,17 @@ describe('StudentSubscriptionSchoolPage Repository', () => {
     expect(subPgs[0].schoolName).toBe(schoolPage2.name);
     expect(subPgs[1].region).toBe(schoolPage1.region);
     expect(subPgs[1].schoolName).toBe(schoolPage1.name);
+  });
+
+  it('id로 구독페이지 조회 시, 구독중인 페이지가 아니면 에러', async () => {
+    const sut = new StudentSubscriptionSchoolPageRepository(
+      studentSubscriptionSchoolPageEntityRepository,
+    );
+
+    await expect(
+      sut.getSubscriptionByStudentIdAndSchoolId(1, 1),
+    ).rejects.toThrow(
+      new CustomError(ResponseStatus.NOT_FOUND, '구독중인 페이지가 아닙니다.'),
+    );
   });
 });
