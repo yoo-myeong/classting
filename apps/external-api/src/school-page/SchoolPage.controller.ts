@@ -22,6 +22,6 @@ export class SchoolPageController {
     @Body() body: CreateSchoolPageReqBody,
   ) {
     const userId: number = req['user'].id;
-    await this.schoolPageService.createScPage(body.toDomain(userId));
+    await this.schoolPageService.createSchoolPage(body.toDomain(userId));
   }
 }

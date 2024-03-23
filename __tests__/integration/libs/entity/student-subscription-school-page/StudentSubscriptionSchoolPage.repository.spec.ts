@@ -1,19 +1,16 @@
 import { DataSource, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CustomError } from '@app/common-config/error/CustomError';
-import { ResponseStatus } from '@app/common-config/res/ResponseStastus';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
-import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { StudentSubscriptionEntityModule } from '@app/entity/student-subscription-school-page/StudentSubscriptionEntity.module';
 import { SchoolPageEntityModule } from '@app/entity/school-page/SchoolPageEntity.module';
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
-import { StudentSubscriptionSchoolPageService } from '../../../../../apps/external-api/src/student-subscription-school-page/StudentSubscriptionSchoolPage.service';
-import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 import { SubscribeSchoolPageDto } from '../../../../../apps/external-api/src/student-subscription-school-page/dto/SubscribeSchoolPageDto';
+import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.repository';
 
-describe('StudentSubscriptionSchoolPage Service', () => {
+describe('StudentSubscriptionSchoolPage Repository', () => {
   let dataSource: DataSource;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
   let studentSubscriptionSchoolPageEntityRepository: Repository<StudentSubscriptionSchoolPageEntity>;
@@ -45,7 +42,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     await dataSource.destroy();
   });
 
-  const createShoolPage = async (
+  const createSchoolPage = async (
     region: string = '서울',
     name: string = '청운',
     schoolId: number = 1,
@@ -59,37 +56,30 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     );
   };
 
-  it('존재하지 않는 페이지 구독 불가', async () => {
+  const createSubscriptionSchoolPage = async (
+    studentId: number,
+    schoolPage: SchoolPageEntity,
+  ) => {
+    return await studentSubscriptionSchoolPageEntityRepository.save(
+      new SubscribeSchoolPageDto(studentId, schoolPage.id).toEntity(schoolPage),
+    );
+  };
+
+  it('get Subscribing School Pages By StudentId', async () => {
     const studentId = 1;
-    const scPgId = 1;
-    const sut = new StudentSubscriptionSchoolPageService(
+    const schoolPage1 = await createSchoolPage('경기', '문산', studentId);
+    const schoolPage2 = await createSchoolPage('대전', '화암', studentId);
+    await createSubscriptionSchoolPage(studentId, schoolPage1);
+    await createSubscriptionSchoolPage(studentId, schoolPage2);
+    const sut = new StudentSubscriptionSchoolPageRepository(
       studentSubscriptionSchoolPageEntityRepository,
-      new SchoolPageRepository(schoolPageEntityRepository),
     );
-    const subscribeSchoolPageDto = new SubscribeSchoolPageDto(1, 1);
 
-    await expect(sut.subscribe(subscribeSchoolPageDto)).rejects.toThrow(
-      new CustomError(ResponseStatus.NOT_FOUND, '존재하지 않는 페이지입니다'),
-    );
-  });
+    const subPgs = await sut.getSubscribingSchoolPagesByStudentId(studentId);
 
-  it('학생은 학교 페이지를 구독할 수 있다', async () => {
-    const studentId = 1;
-    const schoolPage = await createShoolPage();
-    const sut = new StudentSubscriptionSchoolPageService(
-      studentSubscriptionSchoolPageEntityRepository,
-      new SchoolPageRepository(schoolPageEntityRepository),
-    );
-    const subscribeSchoolPageDto = new SubscribeSchoolPageDto(1, schoolPage.id);
-
-    await sut.subscribe(subscribeSchoolPageDto);
-    const subs = await studentSubscriptionSchoolPageEntityRepository.findOneBy({
-      studentId,
-      schoolPage: {
-        id: schoolPage.id,
-      },
-    });
-
-    expect(subs).not.toBeNull();
+    expect(subPgs[0].region).toBe(schoolPage2.region);
+    expect(subPgs[0].schoolName).toBe(schoolPage2.name);
+    expect(subPgs[1].region).toBe(schoolPage1.region);
+    expect(subPgs[1].schoolName).toBe(schoolPage1.name);
   });
 });
