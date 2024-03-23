@@ -81,7 +81,7 @@ describe('School News service', () => {
       new SchoolPageRepository(schoolPageEntityRepository),
     );
 
-    await sut.createScNew(
+    await sut.createSchoolNews(
       SchoolNewsDomain.create({
         title,
         content,
