@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { SchoolPageEntityModule } from '@app/entity/school-page/SchoolPageEntity.module';
-import { CreateSchoolPage } from '@app/domain/school-page/CreateSchoolPage.domain';
+import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 import { SchoolPageService } from '../../../../../apps/external-api/src/school-page/SchoolPage.service';
 
 describe('School Page Service', () => {
@@ -33,7 +33,7 @@ describe('School Page Service', () => {
   it('school page 생성', async () => {
     const region = '서울';
     const name = '현대';
-    const domain = CreateSchoolPage.create({
+    const domain = SchoolPageDomain.create({
       region,
       name,
       schoolId: 1,

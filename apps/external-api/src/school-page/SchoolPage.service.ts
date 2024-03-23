@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
-import { CreateSchoolPage } from '@app/domain/school-page/CreateSchoolPage.domain';
+import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 
 @Injectable()
 export class SchoolPageService {
@@ -11,7 +11,7 @@ export class SchoolPageService {
     private readonly scPageEntityRepository: Repository<SchoolPageEntity>,
   ) {}
 
-  async createScPage(createSchoolPage: CreateSchoolPage) {
+  async createScPage(createSchoolPage: SchoolPageDomain) {
     await createSchoolPage.validate();
     await this.scPageEntityRepository.insert(createSchoolPage.toEntity());
   }
