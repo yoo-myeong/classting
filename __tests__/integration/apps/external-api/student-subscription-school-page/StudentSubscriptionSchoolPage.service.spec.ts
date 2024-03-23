@@ -12,6 +12,7 @@ import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 import { StudentSubscriptionSchoolPageService } from '../../../../../apps/external-api/src/student-subscription-school-page/StudentSubscriptionSchoolPage.service';
 import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 import { SubscribeSchoolPageDto } from '../../../../../apps/external-api/src/student-subscription-school-page/dto/SubscribeSchoolPageDto';
+import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.repository';
 
 describe('StudentSubscriptionSchoolPage Service', () => {
   let dataSource: DataSource;
@@ -65,6 +66,9 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     const sut = new StudentSubscriptionSchoolPageService(
       studentSubscriptionSchoolPageEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
+      new StudentSubscriptionSchoolPageRepository(
+        studentSubscriptionSchoolPageEntityRepository,
+      ),
     );
     const subscribeSchoolPageDto = new SubscribeSchoolPageDto(1, 1);
 
@@ -79,6 +83,9 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     const sut = new StudentSubscriptionSchoolPageService(
       studentSubscriptionSchoolPageEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
+      new StudentSubscriptionSchoolPageRepository(
+        studentSubscriptionSchoolPageEntityRepository,
+      ),
     );
     const subscribeSchoolPageDto = new SubscribeSchoolPageDto(1, schoolPage.id);
 
