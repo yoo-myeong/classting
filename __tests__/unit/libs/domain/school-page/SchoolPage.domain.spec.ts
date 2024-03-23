@@ -22,7 +22,7 @@ describe('SchoolPage Domain', () => {
     await expect(sut.validate()).rejects.toThrow(BadRequestException);
   });
 
-  it('학교 페이지 생성 도메인 유효성 검증', async () => {
+  it('학교 페이지 도메인 유효성 검증', async () => {
     const sut = SchoolPageDomain.create({
       region: 'region'.repeat(10),
       name: 'name'.repeat(10),
