@@ -1,4 +1,4 @@
-import { DataSource, IsNull, Not, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CustomError } from '@app/common-config/error/CustomError';
@@ -13,11 +13,15 @@ import { StudentSubscriptionSchoolPageService } from '../../../../../apps/extern
 import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 import { SubscribeSchoolPageDto } from '../../../../../apps/external-api/src/student-subscription-school-page/dto/SubscribeSchoolPageDto';
 import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.repository';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
+import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
+import { SchoolNewsEntityModule } from '@app/entity/school-news/SchoolNewsEntity.module';
 
 describe('StudentSubscriptionSchoolPage Service', () => {
   let dataSource: DataSource;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
   let studentSubscriptionSchoolPageEntityRepository: Repository<StudentSubscriptionSchoolPageEntity>;
+  let schoolNewsEntityRepository: Repository<SchoolNewsEntity>;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,6 +29,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
         getTestMySQLTypeOrmModule(),
         StudentSubscriptionEntityModule,
         SchoolPageEntityModule,
+        SchoolNewsEntityModule,
       ],
     }).compile();
 
@@ -34,12 +39,16 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     studentSubscriptionSchoolPageEntityRepository = module.get(
       getRepositoryToken(StudentSubscriptionSchoolPageEntity),
     );
+    schoolNewsEntityRepository = module.get(
+      getRepositoryToken(SchoolNewsEntity),
+    );
     dataSource = module.get<DataSource>(DataSource);
   });
 
   beforeEach(async () => {
     await schoolPageEntityRepository.delete({});
     await studentSubscriptionSchoolPageEntityRepository.delete({});
+    await schoolNewsEntityRepository.delete({});
   });
 
   afterAll(async () => {
@@ -70,6 +79,20 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     return await studentSubscriptionSchoolPageEntityRepository.save(entity);
   };
 
+  const createSchoolNews = async (
+    schoolPage: SchoolPageEntity,
+    title: string = 'title',
+    content: string = 'content'.repeat(10),
+  ) => {
+    return await schoolNewsEntityRepository.save(
+      SchoolNewsDomain.create({
+        schoolPageId: schoolPage.id,
+        title,
+        content,
+      }).toEntity(schoolPage),
+    );
+  };
+
   it('존재하지 않는 페이지 구독 불가', async () => {
     const studentId = 1;
     const schoolPageId = 1;
@@ -79,6 +102,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
       new StudentSubscriptionSchoolPageRepository(
         studentSubscriptionSchoolPageEntityRepository,
       ),
+      schoolNewsEntityRepository,
     );
     const subscribeSchoolPageDto = new SubscribeSchoolPageDto(1, 1);
 
@@ -96,6 +120,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
       new StudentSubscriptionSchoolPageRepository(
         studentSubscriptionSchoolPageEntityRepository,
       ),
+      schoolNewsEntityRepository,
     );
     const subscribeSchoolPageDto = new SubscribeSchoolPageDto(1, schoolPage.id);
 
@@ -113,13 +138,14 @@ describe('StudentSubscriptionSchoolPage Service', () => {
   it('학생의 학교페이지 구독 취소 ', async () => {
     const studentId = 1;
     const schoolPage = await createSchoolPage();
-    const subscription = await createSubscription(schoolPage, studentId);
+    await createSubscription(schoolPage, studentId);
     const sut = new StudentSubscriptionSchoolPageService(
       studentSubscriptionSchoolPageEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
       new StudentSubscriptionSchoolPageRepository(
         studentSubscriptionSchoolPageEntityRepository,
       ),
+      schoolNewsEntityRepository,
     );
 
     await sut.unsubscribe(studentId, schoolPage.id);
@@ -132,5 +158,49 @@ describe('StudentSubscriptionSchoolPage Service', () => {
       });
 
     expect(schoolPageBy).toBeNull();
+  });
+
+  it('구독중인 학교 페이지별 소식 조회 ', async () => {
+    const studentId = 1;
+    const schoolPage = await createSchoolPage();
+    const title = 'title';
+    const content = 'content';
+    await createSchoolNews(schoolPage, title, content);
+    await createSubscription(schoolPage, studentId);
+    const sut = new StudentSubscriptionSchoolPageService(
+      studentSubscriptionSchoolPageEntityRepository,
+      new SchoolPageRepository(schoolPageEntityRepository),
+      new StudentSubscriptionSchoolPageRepository(
+        studentSubscriptionSchoolPageEntityRepository,
+      ),
+      schoolNewsEntityRepository,
+    );
+
+    const newsList = await sut.getSubscribingPageNewsByStudentIdAndPageId(
+      studentId,
+      schoolPage.id,
+    );
+
+    expect(newsList[0].title).toBe(title);
+    expect(newsList[0].content).toBe(content);
+  });
+
+  it('구독중이 아니라면 학교 페이지별 소식을 조회할 수 없습니다. ', async () => {
+    const studentId = 1;
+    const schoolPage = await createSchoolPage();
+    const sut = new StudentSubscriptionSchoolPageService(
+      studentSubscriptionSchoolPageEntityRepository,
+      new SchoolPageRepository(schoolPageEntityRepository),
+      new StudentSubscriptionSchoolPageRepository(
+        studentSubscriptionSchoolPageEntityRepository,
+      ),
+      schoolNewsEntityRepository,
+    );
+
+    await expect(
+      sut.getSubscribingPageNewsByStudentIdAndPageId(studentId, schoolPage.id),
+    ).rejects.toThrow(
+      new CustomError(ResponseStatus.NOT_FOUND, '구독중인 페이지가 아닙니다.'),
+    );
   });
 });

@@ -4,8 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
 import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.repository';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 import { SubscribeSchoolPageDto } from './dto/SubscribeSchoolPageDto';
 import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
+import { GetSubscribingPageNewsByPageIdResult } from './dto/GetSubscribingPageNewsByPageIdResult';
 
 @Injectable()
 export class StudentSubscriptionSchoolPageService {
@@ -16,6 +18,9 @@ export class StudentSubscriptionSchoolPageService {
     private readonly schoolPageRepository: SchoolPageRepository,
 
     private readonly studentSubscriptionSchoolPageRepository: StudentSubscriptionSchoolPageRepository,
+
+    @InjectRepository(SchoolNewsEntity)
+    private readonly schoolNewsEntityRepository: Repository<SchoolNewsEntity>,
   ) {}
 
   async subscribe(dto: SubscribeSchoolPageDto) {
@@ -51,6 +56,31 @@ export class StudentSubscriptionSchoolPageService {
 
     await this.studentSubscriptionSchoolPageEntityRepository.softDelete(
       subscription.id,
+    );
+  }
+
+  async getSubscribingPageNewsByStudentIdAndPageId(
+    studentId: number,
+    schoolPageId: number,
+  ) {
+    await this.studentSubscriptionSchoolPageRepository.getSubscriptionByStudentIdAndSchoolId(
+      studentId,
+      schoolPageId,
+    );
+
+    const newsList = await this.schoolNewsEntityRepository.find({
+      where: {
+        schoolPage: {
+          id: schoolPageId,
+        },
+      },
+      order: {
+        createdAt: 'desc',
+      },
+    });
+
+    return newsList.map(
+      (it) => new GetSubscribingPageNewsByPageIdResult(it.title, it.content),
     );
   }
 }

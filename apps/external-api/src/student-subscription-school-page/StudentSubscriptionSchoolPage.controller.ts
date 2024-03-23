@@ -64,4 +64,21 @@ export class StudentSubscriptionSchoolPageController {
       pageId,
     );
   }
+
+  @ApiOperation({
+    summary: '학생의 구독중인 학교페이지 소식 최신순 조회',
+  })
+  @ApiStudentAuthHeader()
+  @UseGuards(StudentUserGuard)
+  @Get('pages/:pageId/news')
+  async getSubscribingPageNewsList(
+    @Req() req: Request,
+    @Param('pageId') pageId: number,
+  ) {
+    const userId = req['user'].id;
+    return this.studentSubscriptionSchoolPageService.getSubscribingPageNewsByStudentIdAndPageId(
+      userId,
+      pageId,
+    );
+  }
 }

@@ -9,20 +9,22 @@ import request from 'supertest';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
-import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
 import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { SchoolPageModule } from '../../../../../apps/external-api/src/school-page/SchoolPage.module';
-import { SchoolNewsModule } from '../../../../../apps/external-api/src/school-news/SchoolNews.module';
 import { StudentSubscriptionSchoolPageModule } from '../../../../../apps/external-api/src/student-subscription-school-page/StudentSubscriptionSchoolPage.module';
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseMappingInterceptor } from '@app/common-config/interceptor/response-mapping.interceptor';
+import { SchoolNewsEntityModule } from '@app/entity/school-news/SchoolNewsEntity.module';
+import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 
-describe('/st/sub', () => {
+describe('/students/subscriptions', () => {
   let app: INestApplication;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
   let studentSubscriptionSchoolPageEntityRepository: Repository<StudentSubscriptionSchoolPageEntity>;
+  let schoolNewsEntityRepository: Repository<SchoolNewsEntity>;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -51,6 +53,9 @@ describe('/st/sub', () => {
     studentSubscriptionSchoolPageEntityRepository = module.get(
       getRepositoryToken(StudentSubscriptionSchoolPageEntity),
     );
+    schoolNewsEntityRepository = module.get(
+      getRepositoryToken(SchoolNewsEntity),
+    );
 
     app = App.create({
       app: module.createNestApplication(),
@@ -63,6 +68,7 @@ describe('/st/sub', () => {
   beforeEach(async () => {
     await schoolPageEntityRepository.delete({});
     await studentSubscriptionSchoolPageEntityRepository.delete({});
+    await schoolNewsEntityRepository.delete({});
   });
 
   afterAll(async () => {
@@ -80,6 +86,20 @@ describe('/st/sub', () => {
         name,
         schoolId,
       }).toEntity(),
+    );
+  };
+
+  const createSchoolNews = async (
+    schoolPage: SchoolPageEntity,
+    title: string = 'title',
+    content: string = 'content'.repeat(10),
+  ) => {
+    return await schoolNewsEntityRepository.save(
+      SchoolNewsDomain.create({
+        schoolPageId: schoolPage.id,
+        title,
+        content,
+      }).toEntity(schoolPage),
     );
   };
 
@@ -127,5 +147,23 @@ describe('/st/sub', () => {
       .set('Authorization', 'test-token');
 
     expect(res.status).toBe(HttpStatus.OK);
+  });
+
+  it('[GET] /students/subscriptions/pages/:pageId/news', async () => {
+    const region = '경기';
+    const schoolPage = await createSchoolPage(region);
+    await studentSubscriptionSchoolPageEntityRepository.insert({
+      studentId: 1,
+      schoolPage,
+    });
+    const title = 'title';
+    await createSchoolNews(schoolPage, title);
+
+    const res = await request(app.getHttpServer())
+      .get(`/students/subscriptions/pages/${schoolPage.id}/news`)
+      .set('Authorization', 'test-token');
+
+    expect(res.status).toBe(HttpStatus.OK);
+    expect(res.body.data[0].title).toBe(title);
   });
 });
