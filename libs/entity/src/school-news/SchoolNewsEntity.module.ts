@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ScNewsEntity } from '@app/entity/sc-news/sc-news.entity';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ScNewsEntity])],
+  imports: [TypeOrmModule.forFeature([SchoolNewsEntity])],
   exports: [TypeOrmModule],
 })
 export class SchoolNewsEntityModule {}
