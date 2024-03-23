@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { CreateSchoolPage } from '@app/domain/school-page/create-sc-page.domain';
+import { CreateSchoolPage } from '@app/domain/school-page/CreateSchoolPage.domain';
 
 describe('CreateSchoolPage Domain', () => {
   it('지역명은 최대 100자입니다', async () => {
