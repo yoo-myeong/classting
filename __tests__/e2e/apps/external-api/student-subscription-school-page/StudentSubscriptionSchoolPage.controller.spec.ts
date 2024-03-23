@@ -10,16 +10,17 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
+import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
 import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule';
 import { SchoolPageModule } from '../../../../../apps/external-api/src/school-page/SchoolPage.module';
 import { SchoolNewsModule } from '../../../../../apps/external-api/src/school-news/SchoolNews.module';
+import { StudentSubscriptionSchoolPageModule } from '../../../../../apps/external-api/src/student-subscription-school-page/StudentSubscriptionSchoolPage.module';
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
-import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
 
-describe('/schools/pages/:pageId/news', () => {
+describe('/st/sub', () => {
   let app: INestApplication;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
-  let schoolNewsEntityRepository: Repository<SchoolNewsEntity>;
+  let studentSubscriptionSchoolPageEntityRepository: Repository<StudentSubscriptionSchoolPageEntity>;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -31,7 +32,7 @@ describe('/schools/pages/:pageId/news', () => {
         }),
         getTestMySQLTypeOrmModule(),
         SchoolPageModule,
-        SchoolNewsModule,
+        StudentSubscriptionSchoolPageModule,
       ],
       providers: [Logger],
     }).compile();
@@ -39,8 +40,8 @@ describe('/schools/pages/:pageId/news', () => {
     schoolPageEntityRepository = module.get(
       getRepositoryToken(SchoolPageEntity),
     );
-    schoolNewsEntityRepository = module.get(
-      getRepositoryToken(SchoolNewsEntity),
+    studentSubscriptionSchoolPageEntityRepository = module.get(
+      getRepositoryToken(StudentSubscriptionSchoolPageEntity),
     );
 
     app = App.create({
@@ -53,7 +54,7 @@ describe('/schools/pages/:pageId/news', () => {
 
   beforeEach(async () => {
     await schoolPageEntityRepository.delete({});
-    await schoolNewsEntityRepository.delete({});
+    await studentSubscriptionSchoolPageEntityRepository.delete({});
   });
 
   afterAll(async () => {
@@ -74,59 +75,17 @@ describe('/schools/pages/:pageId/news', () => {
     );
   };
 
-  const createSchoolNews = async (
-    schoolPage: SchoolPageEntity,
-    title: string = 'title',
-    content: string = 'content'.repeat(10),
-  ) => {
-    return await schoolNewsEntityRepository.save(
-      SchoolNewsDomain.create({
-        schoolPageId: schoolPage.id,
-        title,
-        content,
-      }).toEntity(schoolPage),
-    );
-  };
-
-  it('[POST] /schools/pages/:pageId/news', async () => {
+  it('[POST]/students/subscriptions', async () => {
     const schoolPage = await createSchoolPage();
     const reqBody = {
-      title: 'title',
-      content: 'content'.repeat(10),
+      schoolPageId: schoolPage.id,
     };
 
     const res = await request(app.getHttpServer())
-      .post(`/schools/pages/${schoolPage.id}/news`)
+      .post(`/students/subscriptions`)
       .set('Authorization', 'test-token')
       .send(reqBody);
 
     expect(res.status).toBe(HttpStatus.CREATED);
-  });
-
-  it('[DELETE] /schools/pages/:pageId/news', async () => {
-    const schoolPage = await createSchoolPage();
-    const schoolNews = await createSchoolNews(schoolPage);
-
-    const res = await request(app.getHttpServer())
-      .delete(`/schools/pages/${schoolPage.id}/news/${schoolNews.id}`)
-      .set('Authorization', 'test-token');
-
-    expect(res.status).toBe(HttpStatus.OK);
-  });
-
-  it('[PATCH]/schools/pages/:pageId/news/:newsId', async () => {
-    const schoolPage = await createSchoolPage();
-    const schoolNews = await createSchoolNews(schoolPage);
-    const reqBody = {
-      title: 'title2',
-      content: 'content2'.repeat(10),
-    };
-
-    const res = await request(app.getHttpServer())
-      .patch(`/schools/pages/${schoolPage.id}/news/${schoolNews.id}`)
-      .set('Authorization', 'test-token')
-      .send(reqBody);
-
-    expect(res.status).toBe(HttpStatus.OK);
   });
 });

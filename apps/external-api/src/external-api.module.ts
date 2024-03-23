@@ -12,6 +12,7 @@ import { UnauthorizedExceptionFilter } from '@app/common-config/filter/api/unaut
 import { getMySQLTypeOrmModule } from '@app/entity/getMySQLTypeOrmModule';
 import { SchoolPageModule } from './school-page/SchoolPage.module';
 import { SchoolNewsModule } from './school-news/SchoolNews.module';
+import { StudentSubscriptionSchoolPageModule } from './student-subscription-school-page/StudentSubscriptionSchoolPage.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { SchoolNewsModule } from './school-news/SchoolNews.module';
     getMySQLTypeOrmModule(),
     SchoolPageModule,
     SchoolNewsModule,
+    StudentSubscriptionSchoolPageModule,
   ],
   providers: [
     Logger,
