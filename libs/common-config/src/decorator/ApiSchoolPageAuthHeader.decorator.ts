@@ -4,7 +4,7 @@ import { ApiHeader } from '@nestjs/swagger';
 export const ApiSchoolPageAuthHeader = () =>
   applyDecorators(
     ApiHeader({
-      name: 'Authorization',
+      name: 'X-Authorization',
       required: true,
       schema: {
         example: 'test-token',

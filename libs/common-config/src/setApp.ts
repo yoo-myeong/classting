@@ -7,7 +7,6 @@ import { v4 as uuidV4 } from 'uuid';
 import { Request, Response, NextFunction } from 'express';
 import { CustomLogger } from '@app/common-config/logger/CustomLogger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { getConfiguration } from '@app/common-config/getConfiguration';
 
 export class App {
   private _app: INestApplication;
@@ -35,7 +34,6 @@ export class App {
       .setTitle(`${this._name} API Docs`)
       .setDescription('classting')
       .setVersion('1.0')
-      .addServer(getConfiguration().EXTERNAL_API_URL)
       .build();
     const document = SwaggerModule.createDocument(this._app, config);
     SwaggerModule.setup('docs', this._app, document, {

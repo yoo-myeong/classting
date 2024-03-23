@@ -111,7 +111,7 @@ describe('/students/subscriptions', () => {
 
     const res = await request(app.getHttpServer())
       .post(`/students/subscriptions`)
-      .set('Authorization', 'test-token')
+      .set('X-Authorization', 'test-token')
       .send(reqBody);
 
     expect(res.status).toBe(HttpStatus.CREATED);
@@ -127,7 +127,7 @@ describe('/students/subscriptions', () => {
 
     const res = await request(app.getHttpServer())
       .get(`/students/subscriptions/pages`)
-      .set('Authorization', 'test-token');
+      .set('X-Authorization', 'test-token');
     const data = res.body.data;
 
     expect(res.status).toBe(HttpStatus.OK);
@@ -144,7 +144,7 @@ describe('/students/subscriptions', () => {
 
     const res = await request(app.getHttpServer())
       .delete(`/students/subscriptions/pages/${schoolPage.id}`)
-      .set('Authorization', 'test-token');
+      .set('X-Authorization', 'test-token');
 
     expect(res.status).toBe(HttpStatus.OK);
   });
@@ -161,7 +161,7 @@ describe('/students/subscriptions', () => {
 
     const res = await request(app.getHttpServer())
       .get(`/students/subscriptions/pages/${schoolPage.id}/news`)
-      .set('Authorization', 'test-token');
+      .set('X-Authorization', 'test-token');
 
     expect(res.status).toBe(HttpStatus.OK);
     expect(res.body.data[0].title).toBe(title);

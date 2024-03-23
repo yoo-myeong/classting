@@ -13,13 +13,13 @@ export class GetSubscribingPageNewsByPageIdResult {
 
   @ApiProperty()
   @Expose()
-  get title() {
+  get title(): string {
     return this._title;
   }
 
   @ApiProperty()
   @Expose()
-  get content() {
+  get content(): string {
     return this._content;
   }
 }

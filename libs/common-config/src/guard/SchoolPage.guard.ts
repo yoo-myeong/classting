@@ -14,7 +14,8 @@ export class SchoolPageGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const schoolPageId = req.params.pageId;
 
-    const token = req.headers.Authorization ?? req.headers.authorization;
+    const token =
+      req.headers['X-Authorization'] ?? req.headers['x-authorization'];
     if (!token) return false;
 
     req.user = {

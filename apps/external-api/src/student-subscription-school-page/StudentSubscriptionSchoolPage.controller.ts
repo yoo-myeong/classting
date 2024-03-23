@@ -16,6 +16,7 @@ import { ResponseData } from '@app/common-config/decorator/ResponseData.decorato
 import { StudentSubscriptionSchoolPageService } from './StudentSubscriptionSchoolPage.service';
 import { SubscribeReqBody } from './dto/SubscribeReqBody';
 import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
+import { GetSubscribingPageNewsByPageIdResult } from './dto/GetSubscribingPageNewsByPageIdResult';
 
 @ApiTags('학생 학교페이지 구독')
 @Controller('students/subscriptions')
@@ -69,6 +70,7 @@ export class StudentSubscriptionSchoolPageController {
     summary: '학생의 구독중인 학교페이지 소식 최신순 조회',
   })
   @ApiStudentAuthHeader()
+  @ResponseData(GetSubscribingPageNewsByPageIdResult)
   @UseGuards(StudentUserGuard)
   @Get('pages/:pageId/news')
   async getSubscribingPageNewsList(

@@ -8,7 +8,8 @@ export class StudentUserGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
 
-    const token = req.headers.Authorization ?? req.headers.authorization;
+    const token =
+      req.headers['X-Authorization'] ?? req.headers['x-authorization'];
     if (!token) return false;
 
     req.user = {

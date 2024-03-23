@@ -105,7 +105,7 @@ describe('/schools/pages/:pageId/news', () => {
 
     const res = await request(app.getHttpServer())
       .post(`/schools/pages/${schoolPage.id}/news`)
-      .set('Authorization', 'test-token')
+      .set('X-Authorization', 'test-token')
       .send(reqBody);
 
     expect(res.status).toBe(HttpStatus.CREATED);
@@ -117,7 +117,7 @@ describe('/schools/pages/:pageId/news', () => {
 
     const res = await request(app.getHttpServer())
       .delete(`/schools/pages/${schoolPage.id}/news/${schoolNews.id}`)
-      .set('Authorization', 'test-token');
+      .set('X-Authorization', 'test-token');
 
     expect(res.status).toBe(HttpStatus.OK);
   });
@@ -132,7 +132,7 @@ describe('/schools/pages/:pageId/news', () => {
 
     const res = await request(app.getHttpServer())
       .patch(`/schools/pages/${schoolPage.id}/news/${schoolNews.id}`)
-      .set('Authorization', 'test-token')
+      .set('X-Authorization', 'test-token')
       .send(reqBody);
 
     expect(res.status).toBe(HttpStatus.OK);
