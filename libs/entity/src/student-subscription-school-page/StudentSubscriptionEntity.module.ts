@@ -6,6 +6,6 @@ import { StudentSubscriptionSchoolPageRepository } from '@app/entity/student-sub
 @Module({
   imports: [TypeOrmModule.forFeature([StudentSubscriptionSchoolPageEntity])],
   providers: [StudentSubscriptionSchoolPageRepository],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, StudentSubscriptionSchoolPageRepository],
 })
 export class StudentSubscriptionEntityModule {}
