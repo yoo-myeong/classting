@@ -113,4 +113,20 @@ describe('/schools/pages/:pageId/news', () => {
 
     expect(res.status).toBe(HttpStatus.OK);
   });
+
+  it('[PATCH]/sc/page/:pageId/new/:newId', async () => {
+    const schoolPage = await createSchoolPage();
+    const schoolNews = await createSchoolNews(schoolPage);
+    const reqBody = {
+      title: 'title2',
+      content: 'content2'.repeat(10),
+    };
+
+    const res = await request(app.getHttpServer())
+      .patch(`/schools/pages/${schoolPage.id}/news/${schoolNews.id}`)
+      .set('Authorization', 'test-token')
+      .send(reqBody);
+
+    expect(res.status).toBe(HttpStatus.OK);
+  });
 });
