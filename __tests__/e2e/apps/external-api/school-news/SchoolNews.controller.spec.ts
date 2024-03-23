@@ -14,6 +14,7 @@ import { getTestMySQLTypeOrmModule } from '../../../../getTestMySQLTypeOrmModule
 import { SchoolPageModule } from '../../../../../apps/external-api/src/school-page/SchoolPage.module';
 import { SchoolNewsModule } from '../../../../../apps/external-api/src/school-news/SchoolNews.module';
 import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
+import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
 
 describe('/schools/pages/:pageId/news', () => {
   let app: INestApplication;
@@ -59,7 +60,7 @@ describe('/schools/pages/:pageId/news', () => {
     await app.close();
   });
 
-  const createScPage = async (
+  const createSchoolPage = async (
     region: string = '서울',
     name: string = '청운',
     schoolId: number = 1,
@@ -73,8 +74,22 @@ describe('/schools/pages/:pageId/news', () => {
     );
   };
 
-  it('[POST]schools/pages/:pageId/news', async () => {
-    const schoolPage = await createScPage();
+  const createSchoolNews = async (
+    schoolPage: SchoolPageEntity,
+    title: string = 'title',
+    content: string = 'content'.repeat(10),
+  ) => {
+    return await schoolNewsEntityRepository.save(
+      SchoolNewsDomain.create({
+        schoolPageId: schoolPage.id,
+        title,
+        content,
+      }).toEntity(schoolPage),
+    );
+  };
+
+  it('[POST] /schools/pages/:pageId/news', async () => {
+    const schoolPage = await createSchoolPage();
     const reqBody = {
       title: 'title',
       content: 'content'.repeat(10),
@@ -86,5 +101,16 @@ describe('/schools/pages/:pageId/news', () => {
       .send(reqBody);
 
     expect(res.status).toBe(HttpStatus.CREATED);
+  });
+
+  it('[DELETE] /schools/pages/:pageId/news', async () => {
+    const schoolPage = await createSchoolPage();
+    const schoolNews = await createSchoolNews(schoolPage);
+
+    const res = await request(app.getHttpServer())
+      .delete(`/schools/pages/${schoolPage.id}/news/${schoolNews.id}`)
+      .set('Authorization', 'test-token');
+
+    expect(res.status).toBe(HttpStatus.OK);
   });
 });
