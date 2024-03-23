@@ -12,6 +12,7 @@ import { SchoolNewsService } from '../../../../../apps/external-api/src/school-n
 import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 import { SchoolNewsRepository } from '@app/entity/school-news/SchoolNews.repository';
 import { UpdateSchoolNewsDto } from '../../../../../apps/external-api/src/school-news/dto/UpdateSchoolNewsDto';
+import { BadRequestException } from '@nestjs/common';
 
 describe('School News service', () => {
   let dataSource: DataSource;
@@ -124,6 +125,29 @@ describe('School News service', () => {
     });
 
     expect(updateScNew).toBeNull();
+  });
+
+  it('학교 소식 수정 시, 생성과 동일한 유효성 검증', async () => {
+    const schoolPage = await createSchoolPage();
+    const schoolNews = await createSchoolNews(
+      schoolPage,
+      'title',
+      'content'.repeat(10),
+    );
+    const sut = new SchoolNewsService(
+      schoolNewsEntityRepository,
+      new SchoolPageRepository(schoolPageEntityRepository),
+      new SchoolNewsRepository(schoolNewsEntityRepository),
+    );
+    const updateTitle = 't';
+    const updateNewDto = new UpdateSchoolNewsDto({
+      id: schoolNews.id,
+      title: updateTitle,
+    });
+
+    await expect(sut.updateSchoolNews(updateNewDto)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('학교 소식 수정', async () => {
