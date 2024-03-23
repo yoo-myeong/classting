@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   ParseIntPipe,
   Post,
@@ -28,5 +29,15 @@ export class SchoolNewsController {
     @Body() body: PublishSchoolNewsReqBody,
   ) {
     await this.schoolNewsService.createScNew(body.toDomain(pageId));
+  }
+
+  @ApiOperation({
+    summary: '학교 소식 삭제',
+  })
+  @ApiSchoolPageAuthHeader()
+  @UseGuards(SchoolPageGuard)
+  @Delete(':newsId')
+  async deleteById(@Param('newsId', ParseIntPipe) newsId: number) {
+    await this.schoolNewsService.deleteById(newsId);
   }
 }

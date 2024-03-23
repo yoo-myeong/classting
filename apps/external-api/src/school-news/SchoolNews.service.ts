@@ -9,14 +9,24 @@ import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
 export class SchoolNewsService {
   constructor(
     @InjectRepository(SchoolNewsEntity)
-    private readonly scNewEntityRepository: Repository<SchoolNewsEntity>,
+    private readonly schoolNewsEntityRepository: Repository<SchoolNewsEntity>,
 
-    private readonly scPageRepository: SchoolPageRepository,
+    private readonly schoolPageRepository: SchoolPageRepository,
   ) {}
 
   async createScNew(schoolNews: SchoolNewsDomain) {
     await schoolNews.validate();
-    const scPage = await this.scPageRepository.getById(schoolNews.schoolPageId);
-    await this.scNewEntityRepository.insert(schoolNews.toEntity(scPage));
+    const schoolPage = await this.schoolPageRepository.getById(
+      schoolNews.schoolPageId,
+    );
+    await this.schoolNewsEntityRepository.insert(
+      schoolNews.toEntity(schoolPage),
+    );
+  }
+
+  async deleteById(id: number) {
+    await this.schoolNewsEntityRepository.delete({
+      id,
+    });
   }
 }
