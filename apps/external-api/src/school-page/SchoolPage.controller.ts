@@ -12,7 +12,7 @@ export class SchoolPageController {
   constructor(private readonly schoolPageService: SchoolPageService) {}
 
   @ApiOperation({
-    summary: 'sc 페이지 등록',
+    summary: '학교 페이지 등록',
   })
   @ApiSchoolAuthHeader()
   @UseGuards(SchoolUserGuard)
