@@ -113,4 +113,19 @@ describe('/st/sub', () => {
     expect(res.status).toBe(HttpStatus.OK);
     expect(data[0].region).toBe(region);
   });
+
+  it('[DELETE] /students/subscriptions/pages/:pageId', async () => {
+    const region = '경기';
+    const schoolPage = await createSchoolPage(region);
+    await studentSubscriptionSchoolPageEntityRepository.insert({
+      studentId: 1,
+      schoolPage,
+    });
+
+    const res = await request(app.getHttpServer())
+      .delete(`/students/subscriptions/pages/${schoolPage.id}`)
+      .set('Authorization', 'test-token');
+
+    expect(res.status).toBe(HttpStatus.OK);
+  });
 });
