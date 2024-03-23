@@ -17,7 +17,7 @@ export class SchoolPageController {
   @ApiSchoolAuthHeader()
   @UseGuards(SchoolUserGuard)
   @Post()
-  async createScPage(
+  async createSchoolPage(
     @Req() req: Request,
     @Body() body: CreateSchoolPageReqBody,
   ) {
