@@ -52,4 +52,16 @@ export class SchoolNewsDomain {
 
     return entity;
   }
+
+  update(ctx: { title?: string; content?: string }) {
+    this._title = ctx.title ?? this._title;
+    this._content = ctx.content ?? this._content;
+  }
+
+  getUpdateContext() {
+    return {
+      title: this._title,
+      content: this._content,
+    };
+  }
 }

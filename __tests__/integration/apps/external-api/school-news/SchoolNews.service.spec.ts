@@ -10,6 +10,9 @@ import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
 import { SchoolNewsService } from '../../../../../apps/external-api/src/school-news/SchoolNews.service';
 import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
+import { SchoolNewsRepository } from '@app/entity/school-news/SchoolNews.repository';
+import { UpdateSchoolNewsDto } from '../../../../../apps/external-api/src/school-news/dto/UpdateSchoolNewsDto';
+import { BadRequestException } from '@nestjs/common';
 
 describe('School News service', () => {
   let dataSource: DataSource;
@@ -79,9 +82,10 @@ describe('School News service', () => {
     const sut = new SchoolNewsService(
       schoolNewsEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
+      new SchoolNewsRepository(schoolNewsEntityRepository),
     );
 
-    await sut.createScNew(
+    await sut.createSchoolNews(
       SchoolNewsDomain.create({
         title,
         content,
@@ -104,7 +108,7 @@ describe('School News service', () => {
 
   it('School News 삭제', async () => {
     const schoolPage = await createSchoolPage();
-    const scNew = await createSchoolNews(
+    const schoolNews = await createSchoolNews(
       schoolPage,
       'title',
       'content'.repeat(10),
@@ -112,13 +116,66 @@ describe('School News service', () => {
     const sut = new SchoolNewsService(
       schoolNewsEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
+      new SchoolNewsRepository(schoolNewsEntityRepository),
     );
 
-    await sut.deleteById(scNew.id);
+    await sut.deleteById(schoolNews.id);
     const updateScNew = await schoolNewsEntityRepository.findOneBy({
-      id: scNew.id,
+      id: schoolNews.id,
     });
 
     expect(updateScNew).toBeNull();
+  });
+
+  it('학교 소식 수정 시, 생성과 동일한 유효성 검증', async () => {
+    const schoolPage = await createSchoolPage();
+    const schoolNews = await createSchoolNews(
+      schoolPage,
+      'title',
+      'content'.repeat(10),
+    );
+    const sut = new SchoolNewsService(
+      schoolNewsEntityRepository,
+      new SchoolPageRepository(schoolPageEntityRepository),
+      new SchoolNewsRepository(schoolNewsEntityRepository),
+    );
+    const updateTitle = 't';
+    const updateNewDto = new UpdateSchoolNewsDto({
+      id: schoolNews.id,
+      title: updateTitle,
+    });
+
+    await expect(sut.updateSchoolNews(updateNewDto)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('학교 소식 수정', async () => {
+    const schoolPage = await createSchoolPage();
+    const schoolNews = await createSchoolNews(
+      schoolPage,
+      'title',
+      'content'.repeat(10),
+    );
+    const sut = new SchoolNewsService(
+      schoolNewsEntityRepository,
+      new SchoolPageRepository(schoolPageEntityRepository),
+      new SchoolNewsRepository(schoolNewsEntityRepository),
+    );
+    const updateTitle = 'title2';
+    const updateContent = 'content2'.repeat(10);
+    const updateSchoolNewsDto = new UpdateSchoolNewsDto({
+      id: schoolNews.id,
+      title: updateTitle,
+      content: updateContent,
+    });
+
+    await sut.updateSchoolNews(updateSchoolNewsDto);
+    const updateScNew = await schoolNewsEntityRepository.findOneBy({
+      id: schoolNews.id,
+    });
+
+    expect(updateScNew.title).toBe(updateTitle);
+    expect(updateScNew.content).toBe(updateContent);
   });
 });

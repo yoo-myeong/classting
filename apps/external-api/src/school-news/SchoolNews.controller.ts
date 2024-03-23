@@ -4,6 +4,7 @@ import {
   Delete,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { ApiSchoolPageAuthHeader } from '@app/common-config/decorator/ApiScPageA
 import { SchoolPageGuard } from '@app/common-config/guard/SchoolPageGuard.service';
 import { SchoolNewsService } from './SchoolNews.service';
 import { PublishSchoolNewsReqBody } from './dto/PublishSchoolNewsReqBody';
+import { UpdateSchoolNewsReqBody } from './dto/UpdateSchoolNewsReqBody';
 
 @ApiTags('학교 소식')
 @Controller('schools/pages/:pageId/news')
@@ -28,7 +30,7 @@ export class SchoolNewsController {
     @Param('pageId', ParseIntPipe) pageId: number,
     @Body() body: PublishSchoolNewsReqBody,
   ) {
-    await this.schoolNewsService.createScNew(body.toDomain(pageId));
+    await this.schoolNewsService.createSchoolNews(body.toDomain(pageId));
   }
 
   @ApiOperation({
@@ -39,5 +41,18 @@ export class SchoolNewsController {
   @Delete(':newsId')
   async deleteById(@Param('newsId', ParseIntPipe) newsId: number) {
     await this.schoolNewsService.deleteById(newsId);
+  }
+
+  @ApiOperation({
+    summary: '학교 소식 수정',
+  })
+  @ApiSchoolPageAuthHeader()
+  @UseGuards(SchoolPageGuard)
+  @Patch(':newsId')
+  async update(
+    @Param('newsId', ParseIntPipe) newsId: number,
+    @Body() body: UpdateSchoolNewsReqBody,
+  ) {
+    await this.schoolNewsService.updateSchoolNews(body.toDomain(newsId));
   }
 }

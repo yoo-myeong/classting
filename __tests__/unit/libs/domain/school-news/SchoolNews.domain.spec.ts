@@ -33,10 +33,26 @@ describe('SchoolNewsDomain', () => {
   it('학교 소식 도메인 유효성 검증', async () => {
     const sut = SchoolNewsDomain.create({
       title: 'title'.repeat(10),
-      content: 'content',
+      content: 'content'.repeat(10),
       schoolPageId: 1,
     });
 
-    await expect(sut.validate()).rejects.toThrow(BadRequestException);
+    await expect(sut.validate()).resolves.not.toThrow();
+  });
+
+  it('학교 소식 수정', async () => {
+    const sut = SchoolNewsDomain.create({
+      title: 'title'.repeat(10),
+      content: 'content',
+      schoolPageId: 1,
+    });
+    const updateContext = {
+      title: 'title2',
+      content: 'content2'.repeat(10),
+    };
+
+    sut.update(updateContext);
+
+    expect(sut.getUpdateContext()).toEqual(updateContext);
   });
 });
