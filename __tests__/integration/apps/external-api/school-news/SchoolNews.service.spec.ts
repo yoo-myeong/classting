@@ -11,7 +11,7 @@ import { SchoolNewsDomain } from '@app/domain/school-news/SchoolNews.domain';
 import { SchoolNewsService } from '../../../../../apps/external-api/src/school-news/SchoolNews.service';
 import { SchoolPageRepository } from '@app/entity/school-page/SchoolPage.repository';
 
-describe('ScNewService', () => {
+describe('School News service', () => {
   let dataSource: DataSource;
   let schoolPageEntityRepository: Repository<SchoolPageEntity>;
   let schoolNewsEntityRepository: Repository<SchoolNewsEntity>;
@@ -43,7 +43,7 @@ describe('ScNewService', () => {
     await dataSource.destroy();
   });
 
-  const createScPage = async (
+  const createSchoolPage = async (
     region: string = '서울',
     name: string = '청운',
     schoolId: number = 1,
@@ -57,8 +57,22 @@ describe('ScNewService', () => {
     );
   };
 
+  const createSchoolNews = async (
+    schoolPage: SchoolPageEntity,
+    title: string = 'title',
+    content: string = 'content'.repeat(10),
+  ) => {
+    return await schoolNewsEntityRepository.save(
+      SchoolNewsDomain.create({
+        schoolPageId: schoolPage.id,
+        title,
+        content,
+      }).toEntity(schoolPage),
+    );
+  };
+
   it('School News 생성', async () => {
-    const schoolPage = await createScPage();
+    const schoolPage = await createSchoolPage();
     const title = '제목';
     const content = '내용'.repeat(50);
     const schoolPageId = schoolPage.id;
@@ -86,5 +100,25 @@ describe('ScNewService', () => {
 
     expect(schoolNews.title).toBe(title);
     expect(schoolNews.content).toBe(content);
+  });
+
+  it('School News 삭제', async () => {
+    const schoolPage = await createSchoolPage();
+    const scNew = await createSchoolNews(
+      schoolPage,
+      'title',
+      'content'.repeat(10),
+    );
+    const sut = new SchoolNewsService(
+      schoolNewsEntityRepository,
+      new SchoolPageRepository(schoolPageEntityRepository),
+    );
+
+    await sut.deleteById(scNew.id);
+    const updateScNew = await schoolNewsEntityRepository.findOneBy({
+      id: scNew.id,
+    });
+
+    expect(updateScNew).toBeNull();
   });
 });
