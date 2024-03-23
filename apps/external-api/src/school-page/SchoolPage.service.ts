@@ -8,11 +8,11 @@ import { SchoolPageDomain } from '@app/domain/school-page/SchoolPage.domain';
 export class SchoolPageService {
   constructor(
     @InjectRepository(SchoolPageEntity)
-    private readonly scPageEntityRepository: Repository<SchoolPageEntity>,
+    private readonly schoolPageEntityRepository: Repository<SchoolPageEntity>,
   ) {}
 
-  async createScPage(createSchoolPage: SchoolPageDomain) {
+  async createSchoolPage(createSchoolPage: SchoolPageDomain) {
     await createSchoolPage.validate();
-    await this.scPageEntityRepository.insert(createSchoolPage.toEntity());
+    await this.schoolPageEntityRepository.insert(createSchoolPage.toEntity());
   }
 }

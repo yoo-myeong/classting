@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiSchoolPageAuthHeader } from '@app/common-config/decorator/ApiScPageAuthorizationHeader.decorator';
+import { ApiSchoolPageAuthHeader } from '@app/common-config/decorator/ApiSchoolPageAuthHeader.decorator';
 import { SchoolPageGuard } from '@app/common-config/guard/SchoolPageGuard.service';
 import { SchoolNewsService } from './SchoolNews.service';
 import { PublishSchoolNewsReqBody } from './dto/PublishSchoolNewsReqBody';

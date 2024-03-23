@@ -40,7 +40,7 @@ describe('School Page Service', () => {
     });
     const sut = new SchoolPageService(schoolPageEntityRepository);
 
-    await sut.createScPage(domain);
+    await sut.createSchoolPage(domain);
     const schoolPage = await schoolPageEntityRepository.findOneBy({
       region,
       name,

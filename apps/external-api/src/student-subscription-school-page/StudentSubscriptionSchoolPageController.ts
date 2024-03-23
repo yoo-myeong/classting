@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiStudentAuthHeader } from '@app/common-config/decorator/ApiStudentAuthHeader.decorator';
@@ -14,7 +14,7 @@ export class StudentSubscriptionSchoolPageController {
   ) {}
 
   @ApiOperation({
-    summary: '학생 학교페이지 구독 등록',
+    summary: '학생의 학교페이지 구독 등록',
   })
   @ApiStudentAuthHeader()
   @UseGuards(StudentUserGuard)
@@ -23,6 +23,19 @@ export class StudentSubscriptionSchoolPageController {
     const userId = req['user'].id;
     await this.studentSubscriptionSchoolPageService.subscribe(
       body.toSubscribeSchoolPageDto(userId),
+    );
+  }
+
+  @ApiOperation({
+    summary: '학생의 구독중인 학교페이지 목록 조회',
+  })
+  @ApiStudentAuthHeader()
+  @UseGuards(StudentUserGuard)
+  @Get('pages')
+  async getAllPg(@Req() req: Request) {
+    const userId = req['user'].id;
+    return this.studentSubscriptionSchoolPageService.getSubscribingSchoolPages(
+      userId,
     );
   }
 }

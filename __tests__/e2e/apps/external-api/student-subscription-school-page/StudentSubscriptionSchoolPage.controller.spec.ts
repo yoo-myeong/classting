@@ -75,7 +75,7 @@ describe('/st/sub', () => {
     );
   };
 
-  it('[POST]/students/subscriptions', async () => {
+  it('[POST] /students/subscriptions', async () => {
     const schoolPage = await createSchoolPage();
     const reqBody = {
       schoolPageId: schoolPage.id,
@@ -87,5 +87,22 @@ describe('/st/sub', () => {
       .send(reqBody);
 
     expect(res.status).toBe(HttpStatus.CREATED);
+  });
+
+  it('[GET] /students/subscriptions/pages', async () => {
+    const region = '경기';
+    const schoolPage = await createSchoolPage(region);
+    await studentSubscriptionSchoolPageEntityRepository.insert({
+      studentId: 1,
+      schoolPage,
+    });
+
+    const res = await request(app.getHttpServer())
+      .get(`/students/subscriptions/pages`)
+      .set('Authorization', 'test-token');
+    const data = res.body;
+
+    expect(res.status).toBe(HttpStatus.OK);
+    expect(data[0].region).toBe(region);
   });
 });
