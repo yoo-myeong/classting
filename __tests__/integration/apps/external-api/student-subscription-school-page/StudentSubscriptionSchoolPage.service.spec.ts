@@ -197,7 +197,10 @@ describe('StudentSubscriptionSchoolPage Service', () => {
     await expect(
       sut.getSubscribingPageNewsByStudentIdAndPageId(studentId, schoolPage.id),
     ).rejects.toThrow(
-      new CustomError(ResponseStatus.NOT_FOUND, '구독중인 페이지가 아닙니다.'),
+      new CustomError(
+        ResponseStatus.NOT_SUBSCRIBING_PAGE,
+        '구독중인 페이지가 아닙니다.',
+      ),
     );
   });
 });
