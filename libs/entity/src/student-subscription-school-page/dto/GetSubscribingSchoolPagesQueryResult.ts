@@ -1,4 +1,4 @@
-export class GetSchoolPagesByStudentIdResult {
+export class GetSubscribingSchoolPagesQueryResult {
   public readonly id: number;
 
   public readonly region: string;

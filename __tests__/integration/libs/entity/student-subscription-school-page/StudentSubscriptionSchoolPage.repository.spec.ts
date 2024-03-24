@@ -101,7 +101,7 @@ describe('StudentSubscriptionSchoolPage Repository', () => {
       studentSubscriptionSchoolPageEntityRepository,
     );
 
-    const subPgs = await sut.getSubscribingSchoolPagesByStudentId(studentId);
+    const subPgs = await sut.getSubscribingSchoolPages(studentId);
 
     expect(subPgs[0].region).toBe(schoolPage2.region);
     expect(subPgs[0].schoolName).toBe(schoolPage2.name);

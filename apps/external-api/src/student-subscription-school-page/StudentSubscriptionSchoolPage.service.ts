@@ -8,6 +8,7 @@ import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
 import { SubscribeSchoolPageDto } from './dto/SubscribeSchoolPageDto';
 import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
 import { GetSubscribingPageNewsByPageIdResult } from './dto/GetSubscribingPageNewsByPageIdResult';
+import { GetNewsFeedsResult } from './dto/GetNewsFeedsResult';
 
 @Injectable()
 export class StudentSubscriptionSchoolPageService {
@@ -37,7 +38,7 @@ export class StudentSubscriptionSchoolPageService {
 
   async getSubscribingSchoolPages(studentId: number) {
     const schoolPages =
-      await this.studentSubscriptionSchoolPageRepository.getSubscribingSchoolPagesByStudentId(
+      await this.studentSubscriptionSchoolPageRepository.getSubscribingSchoolPages(
         studentId,
       );
     return schoolPages.map(
@@ -85,5 +86,14 @@ export class StudentSubscriptionSchoolPageService {
     return newsList.map(
       (it) => new GetSubscribingPageNewsByPageIdResult(it.title, it.content),
     );
+  }
+
+  async getNewsFeeds(studentId: number) {
+    const newsFeeds =
+      await this.studentSubscriptionSchoolPageRepository.getNewsFeeds(
+        studentId,
+      );
+
+    return newsFeeds.map((it) => new GetNewsFeedsResult(it.title, it.content));
   }
 }

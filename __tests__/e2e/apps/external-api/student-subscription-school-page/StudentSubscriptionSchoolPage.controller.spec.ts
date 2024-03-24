@@ -103,6 +103,16 @@ describe('/students/subscriptions', () => {
     );
   };
 
+  const createSubscription = async (
+    schoolPage: SchoolPageEntity,
+    studentId: number = 1,
+  ) => {
+    const entity = new StudentSubscriptionSchoolPageEntity();
+    entity.schoolPage = schoolPage;
+    entity.studentId = studentId;
+    return await studentSubscriptionSchoolPageEntityRepository.save(entity);
+  };
+
   it('[POST] /students/subscriptions', async () => {
     const schoolPage = await createSchoolPage();
     const reqBody = {
@@ -120,10 +130,7 @@ describe('/students/subscriptions', () => {
   it('[GET] /students/subscriptions/pages', async () => {
     const region = '경기';
     const schoolPage = await createSchoolPage(region);
-    await studentSubscriptionSchoolPageEntityRepository.insert({
-      studentId: 1,
-      schoolPage,
-    });
+    const subscription = createSubscription(schoolPage);
 
     const res = await request(app.getHttpServer())
       .get(`/students/subscriptions/pages`)
@@ -137,10 +144,7 @@ describe('/students/subscriptions', () => {
   it('[DELETE] /students/subscriptions/pages/:pageId', async () => {
     const region = '경기';
     const schoolPage = await createSchoolPage(region);
-    await studentSubscriptionSchoolPageEntityRepository.insert({
-      studentId: 1,
-      schoolPage,
-    });
+    const subscription = createSubscription(schoolPage);
 
     const res = await request(app.getHttpServer())
       .delete(`/students/subscriptions/pages/${schoolPage.id}`)
@@ -152,10 +156,7 @@ describe('/students/subscriptions', () => {
   it('[GET] /students/subscriptions/pages/:pageId/news', async () => {
     const region = '경기';
     const schoolPage = await createSchoolPage(region);
-    await studentSubscriptionSchoolPageEntityRepository.insert({
-      studentId: 1,
-      schoolPage,
-    });
+    const subscription = createSubscription(schoolPage);
     const title = 'title';
     await createSchoolNews(schoolPage, title);
 
@@ -165,5 +166,21 @@ describe('/students/subscriptions', () => {
 
     expect(res.status).toBe(HttpStatus.OK);
     expect(res.body.data[0].title).toBe(title);
+  });
+
+  it('[GET] /students/news-feed', async () => {
+    const schoolPage = await createSchoolPage();
+    await createSubscription(schoolPage);
+    const news = await createSchoolNews(schoolPage);
+
+    const res = await request(app.getHttpServer())
+      .get(`/students/news-feed`)
+      .set('X-Authorization', 'test-token');
+    const data = res.body.data;
+
+    expect(res.status).toBe(HttpStatus.OK);
+    expect(data.length).toBe(1);
+    expect(data[0].title).toBe(news.title);
+    expect(data[0].content).toBe(news.content);
   });
 });
