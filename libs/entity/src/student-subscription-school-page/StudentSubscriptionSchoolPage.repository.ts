@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { StudentSubscriptionSchoolPageEntity } from '@app/entity/student-subscription-school-page/StudentSubscriptionSchoolPage.entity';
-import { GetSchoolPagesByStudentIdResult } from '@app/entity/student-subscription-school-page/dto/GetSchoolPagesByStudentIdResult';
+import { GetSubscribingSchoolPagesQueryResult } from '@app/entity/student-subscription-school-page/dto/GetSubscribingSchoolPagesQueryResult';
 import { CustomError } from '@app/common-config/error/CustomError';
 import { ResponseStatus } from '@app/common-config/res/ResponseStastus';
+import { SchoolNewsEntity } from '@app/entity/school-news/SchoolNews.entity';
+import { plainToInstance } from 'class-transformer';
+import { GetNewsFeedsQueryResult } from '@app/entity/student-subscription-school-page/dto/GetNewsFeedsQueryResult';
 
 @Injectable()
 export class StudentSubscriptionSchoolPageRepository {
@@ -13,7 +16,7 @@ export class StudentSubscriptionSchoolPageRepository {
     private readonly studentSubscriptionSchoolPageEntityRepository: Repository<StudentSubscriptionSchoolPageEntity>,
   ) {}
 
-  async getSubscribingSchoolPagesByStudentId(studentId: number) {
+  async getSubscribingSchoolPages(studentId: number) {
     const sub = await this.studentSubscriptionSchoolPageEntityRepository
       .createQueryBuilder('ss')
       .innerJoinAndSelect('ss.schoolPage', 'sp')
@@ -24,7 +27,7 @@ export class StudentSubscriptionSchoolPageRepository {
 
     return sub.map(
       (it) =>
-        new GetSchoolPagesByStudentIdResult({
+        new GetSubscribingSchoolPagesQueryResult({
           id: it.schoolPage.id,
           region: it.schoolPage.region,
           schoolName: it.schoolPage.name,
@@ -52,5 +55,28 @@ export class StudentSubscriptionSchoolPageRepository {
       );
 
     return subscription;
+  }
+
+  async getNewsFeeds(studentId: number) {
+    const newsFeeds = await this.studentSubscriptionSchoolPageEntityRepository
+      .createQueryBuilder('ssp')
+      .select('sn.title', 'title')
+      .addSelect('sn.content', 'content')
+      .withDeleted()
+      .innerJoin('ssp.schoolPage', 'sp')
+      .innerJoin(SchoolNewsEntity, 'sn', 'sn.school_page_id = sp.id')
+      .where('ssp.studentId=:studentId', { studentId })
+      .andWhere('sn.createdAt >= ssp.createdAt')
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('ssp.deletedAt >= sn.createdAt').orWhere(
+            'ssp.deletedAt is null',
+          );
+        }),
+      )
+      .orderBy('sn.createdAt', 'DESC')
+      .getRawMany();
+
+    return newsFeeds.map((it) => plainToInstance(GetNewsFeedsQueryResult, it));
   }
 }
