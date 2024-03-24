@@ -141,13 +141,13 @@ describe('/students/subscriptions', () => {
     expect(data[0].region).toBe(region);
   });
 
-  it('[DELETE] /students/subscriptions/pages/:pageId', async () => {
+  it('[DELETE] /students/subscriptions/:subscriptionId', async () => {
     const region = '경기';
     const schoolPage = await createSchoolPage(region);
-    const subscription = createSubscription(schoolPage);
+    const subscription = await createSubscription(schoolPage);
 
     const res = await request(app.getHttpServer())
-      .delete(`/students/subscriptions/pages/${schoolPage.id}`)
+      .delete(`/students/subscriptions/${subscription.id}`)
       .set('X-Authorization', 'test-token');
 
     expect(res.status).toBe(HttpStatus.OK);

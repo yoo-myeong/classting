@@ -51,16 +51,11 @@ export class StudentSubscriptionSchoolPageService {
     );
   }
 
-  async unsubscribe(studentId: number, schoolPageId: number) {
-    const subscription =
-      await this.studentSubscriptionSchoolPageRepository.getSubscriptionByStudentIdAndSchoolId(
-        studentId,
-        schoolPageId,
-      );
-
-    await this.studentSubscriptionSchoolPageEntityRepository.softDelete(
-      subscription.id,
-    );
+  async unsubscribe(studentId: number, subscriptionId: number) {
+    await this.studentSubscriptionSchoolPageEntityRepository.softDelete({
+      id: subscriptionId,
+      studentId,
+    });
   }
 
   async getSubscribingPageNewsByStudentIdAndPageId(

@@ -138,7 +138,7 @@ describe('StudentSubscriptionSchoolPage Service', () => {
   it('학생의 학교페이지 구독 취소 ', async () => {
     const studentId = 1;
     const schoolPage = await createSchoolPage();
-    await createSubscription(schoolPage, studentId);
+    const subscription = await createSubscription(schoolPage, studentId);
     const sut = new StudentSubscriptionSchoolPageService(
       studentSubscriptionSchoolPageEntityRepository,
       new SchoolPageRepository(schoolPageEntityRepository),
@@ -148,13 +148,10 @@ describe('StudentSubscriptionSchoolPage Service', () => {
       schoolNewsEntityRepository,
     );
 
-    await sut.unsubscribe(studentId, schoolPage.id);
+    await sut.unsubscribe(studentId, subscription.id);
     const schoolPageBy =
       await studentSubscriptionSchoolPageEntityRepository.findOneBy({
-        studentId,
-        schoolPage: {
-          id: schoolPage.id,
-        },
+        id: subscription.id,
       });
 
     expect(schoolPageBy).toBeNull();
