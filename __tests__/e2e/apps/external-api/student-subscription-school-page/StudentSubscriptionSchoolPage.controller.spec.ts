@@ -168,13 +168,13 @@ describe('/students/subscriptions', () => {
     expect(res.body.data[0].title).toBe(title);
   });
 
-  it('[GET] /students/news-feed', async () => {
+  it('[GET] /students/subscriptions/news', async () => {
     const schoolPage = await createSchoolPage();
     await createSubscription(schoolPage);
     const news = await createSchoolNews(schoolPage);
 
     const res = await request(app.getHttpServer())
-      .get(`/students/news-feed`)
+      .get(`/students/subscriptions/news`)
       .set('X-Authorization', 'test-token');
     const data = res.body.data;
 
