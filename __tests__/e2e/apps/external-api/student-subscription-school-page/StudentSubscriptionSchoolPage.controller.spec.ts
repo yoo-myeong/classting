@@ -141,13 +141,13 @@ describe('/students/subscriptions', () => {
     expect(data[0].region).toBe(region);
   });
 
-  it('[DELETE] /students/subscriptions/pages/:pageId', async () => {
+  it('[DELETE] /students/subscriptions/:subscriptionId', async () => {
     const region = '경기';
     const schoolPage = await createSchoolPage(region);
-    const subscription = createSubscription(schoolPage);
+    const subscription = await createSubscription(schoolPage);
 
     const res = await request(app.getHttpServer())
-      .delete(`/students/subscriptions/pages/${schoolPage.id}`)
+      .delete(`/students/subscriptions/${subscription.id}`)
       .set('X-Authorization', 'test-token');
 
     expect(res.status).toBe(HttpStatus.OK);
@@ -168,13 +168,13 @@ describe('/students/subscriptions', () => {
     expect(res.body.data[0].title).toBe(title);
   });
 
-  it('[GET] /students/news-feed', async () => {
+  it('[GET] /students/subscriptions/news', async () => {
     const schoolPage = await createSchoolPage();
     await createSubscription(schoolPage);
     const news = await createSchoolNews(schoolPage);
 
     const res = await request(app.getHttpServer())
-      .get(`/students/news-feed`)
+      .get(`/students/subscriptions/news`)
       .set('X-Authorization', 'test-token');
     const data = res.body.data;
 

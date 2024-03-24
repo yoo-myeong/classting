@@ -31,14 +31,12 @@ export class App {
 
   private setSwagger() {
     const config = new DocumentBuilder()
-      .setTitle(`${this._name} API Docs`)
-      .setDescription('classting')
+      .setTitle(`${this._name}`)
       .setVersion('1.0')
       .build();
     const document = SwaggerModule.createDocument(this._app, config);
     SwaggerModule.setup('docs', this._app, document, {
       swaggerOptions: {
-        tagsSorter: 'alpha',
         operationsSorter: 'alpha',
       },
     });

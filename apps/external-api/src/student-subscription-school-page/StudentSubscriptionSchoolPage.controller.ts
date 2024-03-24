@@ -19,20 +19,20 @@ import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPages
 import { GetSubscribingPageNewsByPageIdResult } from './dto/GetSubscribingPageNewsByPageIdResult';
 import { SubscribeRes } from './dto/SubscribeRes';
 
-@ApiTags('학생 학교페이지 구독')
-@Controller('students')
+@ApiTags('학생 구독')
+@Controller('students/subscriptions')
 export class StudentSubscriptionSchoolPageController {
   constructor(
     private readonly studentSubscriptionSchoolPageService: StudentSubscriptionSchoolPageService,
   ) {}
 
   @ApiOperation({
-    summary: '학생의 학교페이지 구독 등록',
+    summary: '학생의 학교페이지 구독',
   })
   @ApiStudentAuthHeader()
   @ResponseData(SubscribeRes)
   @UseGuards(StudentUserGuard)
-  @Post('subscriptions')
+  @Post()
   async subscribe(@Req() req: Request, @Body() body: SubscribeReqBody) {
     const userId = req['user'].id;
     const id = await this.studentSubscriptionSchoolPageService.subscribe(
@@ -48,7 +48,7 @@ export class StudentSubscriptionSchoolPageController {
   @ApiStudentAuthHeader()
   @ResponseData(GetSubscribingSchoolPagesResult)
   @UseGuards(StudentUserGuard)
-  @Get('subscriptions/pages')
+  @Get('pages')
   async getAllSubscribingPage(@Req() req: Request) {
     const userId = req['user'].id;
     return this.studentSubscriptionSchoolPageService.getSubscribingSchoolPages(
@@ -61,22 +61,25 @@ export class StudentSubscriptionSchoolPageController {
   })
   @ApiStudentAuthHeader()
   @UseGuards(StudentUserGuard)
-  @Delete('subscriptions/pages/:pageId')
-  async unsubscribe(@Req() req: Request, @Param('pageId') pageId: number) {
+  @Delete(':subscriptionId')
+  async unsubscribe(
+    @Req() req: Request,
+    @Param('subscriptionId') subscriptionId: number,
+  ) {
     const userId = req['user'].id;
     return this.studentSubscriptionSchoolPageService.unsubscribe(
       userId,
-      pageId,
+      subscriptionId,
     );
   }
 
   @ApiOperation({
-    summary: '학생의 구독중인 학교페이지 소식 최신순 조회',
+    summary: '학생의 구독중인 학교페이지별 소식 최신순 조회',
   })
   @ApiStudentAuthHeader()
   @ResponseData(GetSubscribingPageNewsByPageIdResult)
   @UseGuards(StudentUserGuard)
-  @Get('subscriptions/pages/:pageId/news')
+  @Get('pages/:pageId/news')
   async getSubscribingPageNewsList(
     @Req() req: Request,
     @Param('pageId') pageId: number,
@@ -89,12 +92,12 @@ export class StudentSubscriptionSchoolPageController {
   }
 
   @ApiOperation({
-    summary: '학생의 뉴스피드 조회',
+    summary: '학생의 구독중인 학교소식 모아보기(뉴스피드)',
   })
   @ApiStudentAuthHeader()
   @ResponseData(GetSubscribingPageNewsByPageIdResult)
   @UseGuards(StudentUserGuard)
-  @Get('news-feed')
+  @Get('news')
   async getNewsFeeds(@Req() req: Request) {
     const userId = req['user'].id;
     return this.studentSubscriptionSchoolPageService.getNewsFeeds(userId);

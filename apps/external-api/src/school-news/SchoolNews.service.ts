@@ -38,7 +38,7 @@ export class SchoolNewsService {
 
   async updateSchoolNews(dto: UpdateSchoolNewsDto) {
     const newId = dto.id;
-    const schoolNews = await this.schoolNewsRepository.getPublishNewById(newId);
+    const schoolNews = await this.schoolNewsRepository.getSchoolNewsById(newId);
     schoolNews.update({
       title: dto.title,
       content: dto.content,

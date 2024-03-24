@@ -50,7 +50,7 @@ export class StudentSubscriptionSchoolPageRepository {
 
     if (!subscription)
       throw new CustomError(
-        ResponseStatus.NOT_FOUND,
+        ResponseStatus.NOT_SUBSCRIBING_PAGE,
         '구독중인 페이지가 아닙니다.',
       );
 

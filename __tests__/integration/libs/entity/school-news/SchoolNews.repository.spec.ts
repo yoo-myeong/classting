@@ -34,7 +34,7 @@ describe('School News Repository', () => {
   it('등록된 학교 소식인지 확인', async () => {
     const sut = new SchoolNewsRepository(schoolNewsEntityRepository);
 
-    await expect(sut.getPublishNewById(1)).rejects.toThrow(
+    await expect(sut.getSchoolNewsById(1)).rejects.toThrow(
       new CustomError(ResponseStatus.NOT_FOUND, '존재하지 않는 소식입니다.'),
     );
   });

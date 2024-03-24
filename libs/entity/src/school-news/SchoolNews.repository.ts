@@ -13,7 +13,7 @@ export class SchoolNewsRepository {
     private readonly schoolNewsEntityRepository: Repository<SchoolNewsEntity>,
   ) {}
 
-  async getPublishNewById(id: number) {
+  async getSchoolNewsById(id: number) {
     const news = await this.schoolNewsEntityRepository
       .createQueryBuilder('sn')
       .innerJoinAndSelect('sn.schoolPage', 'sp')

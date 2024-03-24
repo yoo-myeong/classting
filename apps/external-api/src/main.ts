@@ -7,7 +7,7 @@ import { ExternalApiModule } from './external-api.module';
 async function bootstrap() {
   await App.create({
     app: await NestFactory.create(ExternalApiModule),
-    name: 'external-api',
+    name: 'EXTERNAL-API',
     nodeEnv: getNodeEnv(process.env.NODE_ENV),
   }).start(+process.env[Configuration.EXTERNAL_API_PORT]);
 }
