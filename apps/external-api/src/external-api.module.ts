@@ -10,6 +10,7 @@ import { NotFoundExceptionsFilter } from '@app/common-config/filter/api/not-foun
 import { ForbiddenExceptionFilter } from '@app/common-config/filter/api/forbidden-exception.filter';
 import { UnauthorizedExceptionFilter } from '@app/common-config/filter/api/unauthorized-exception.filter';
 import { getMySQLTypeOrmModule } from '@app/entity/getMySQLTypeOrmModule';
+import { CustomErrorFilter } from '@app/common-config/filter/api/custom-error.filter';
 import { SchoolPageModule } from './school-page/SchoolPage.module';
 import { SchoolNewsModule } from './school-news/SchoolNews.module';
 import { StudentSubscriptionSchoolPageModule } from './student-subscription-school-page/StudentSubscriptionSchoolPage.module';
@@ -35,6 +36,10 @@ import { StudentSubscriptionSchoolPageModule } from './student-subscription-scho
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: CustomErrorFilter,
     },
     {
       provide: APP_FILTER,
