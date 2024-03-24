@@ -4,16 +4,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  Unique,
 } from 'typeorm';
 import { BaseTimeEntity } from '@app/entity/BaseTimeEntity';
 import { SchoolPageEntity } from '@app/entity/school-page/SchoolPage.entity';
 
 @Entity('student_subscription_school_page')
-@Unique('unique_student_subscription_school_page_1', [
-  'studentId',
-  'schoolPage',
-])
 export class StudentSubscriptionSchoolPageEntity extends BaseTimeEntity {
   @Column({
     nullable: false,
