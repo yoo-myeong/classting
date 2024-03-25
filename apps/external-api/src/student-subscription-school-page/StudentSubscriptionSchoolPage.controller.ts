@@ -13,6 +13,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiStudentAuthHeader } from '@app/common-config/decorator/ApiStudentAuthHeader.decorator';
 import { StudentUserGuard } from '@app/common-config/guard/StudentUser.guard';
 import { ResponseData } from '@app/common-config/decorator/ResponseData.decorator';
+import { ResponseListData } from '@app/common-config/decorator/ResponseListData.decorator';
 import { StudentSubscriptionSchoolPageService } from './StudentSubscriptionSchoolPage.service';
 import { SubscribeReqBody } from './dto/SubscribeReqBody';
 import { GetSubscribingSchoolPagesResult } from './dto/GetSubscribingSchoolPagesResult';
@@ -46,7 +47,7 @@ export class StudentSubscriptionSchoolPageController {
     summary: '학생의 구독중인 학교페이지 목록 조회',
   })
   @ApiStudentAuthHeader()
-  @ResponseData(GetSubscribingSchoolPagesResult)
+  @ResponseListData(GetSubscribingSchoolPagesResult)
   @UseGuards(StudentUserGuard)
   @Get('pages')
   async getAllSubscribingPage(@Req() req: Request) {
@@ -77,7 +78,7 @@ export class StudentSubscriptionSchoolPageController {
     summary: '학생의 구독중인 학교페이지별 소식 최신순 조회',
   })
   @ApiStudentAuthHeader()
-  @ResponseData(GetSubscribingPageNewsByPageIdResult)
+  @ResponseListData(GetSubscribingPageNewsByPageIdResult)
   @UseGuards(StudentUserGuard)
   @Get('pages/:pageId/news')
   async getSubscribingPageNewsList(
@@ -95,7 +96,7 @@ export class StudentSubscriptionSchoolPageController {
     summary: '학생의 구독중인 학교소식 모아보기(뉴스피드)',
   })
   @ApiStudentAuthHeader()
-  @ResponseData(GetSubscribingPageNewsByPageIdResult)
+  @ResponseListData(GetSubscribingPageNewsByPageIdResult)
   @UseGuards(StudentUserGuard)
   @Get('news')
   async getNewsFeeds(@Req() req: Request) {
